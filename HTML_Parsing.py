@@ -1,58 +1,46 @@
 from __future__ import print_function
 import urllib as ul
-import Queue as qu
-import multiprocessing as mp
+import threading
+from Queue import Queue
 from bs4 import BeautifulSoup
 from threading import Thread, Lock
 
+task_queue = Queue()
+product_queue = Queue()
+out_queue = Queue()
+print_look = threading.Lock()
+source = "https://shop.adidas.jp/item/?cateId=1&condition=4%245&gendId=m&limit=120&page="
+pdt_source = "https://shop.adidas.jp"
 
-class HTML:
-  lstPageSource = list()
-  source = "https://shop.adidas.jp/item/?cateId=1&condition=4%245&gendId=m&limit=120&page="
+def createTaskQueue():
+  for i in range(1,16):
+    task_queue.put(source + str(i))
 
-  def __init__(self):
-    process = [mp.Process(target=self.getProduct, args=(i,self.output)) for i in range(15)]
-    print ("starting")
-    for p in process:
-      p.start()
-    for p in process:
-      p.join(timeout=1)
-      print (".", end='')
-    print (".")
-    print ("analyzing succeed")
-    for p in process:
-      print (p)
-      print (self.output.get())
-    result = [self.output.get() for p in process]
-    print(result)
+def getProduct():
+  with print_look:
+    print (".", end='')
+  html = ul.urlopen(source).read()
+  soup = BeautifulSoup(html,"html.parser")
+  for item in soup.findAll("a",{"data-ga-event-category": "eec_productlist"}):
+    out_queue.put_nowait(item['href'])
+  task_queue.task_done()
+  with print_look:
+    print (".", end='')
 
-  output = mp.Queue()
-  def getProduct(self, url, output):
-    self.source += str(url)
-    html = ul.urlopen(self.source).read()
-    soup = BeautifulSoup(html,"html.parser")
-    for item in soup.findAll("a",{"data-ga-event-category": "eec_productlist"}):
-      self.output.put(item['href'])
+def createProductLink(link):
+  for product in link:
+    product_queue.put(pdt_source + product)
 
-test = HTML()
-# url = "https://shop.adidas.jp/item/?gendId=m&condition=45&f=header"
-# html = ul.urlopen(url).read()
-# soup = BeautifulSoup(html, "html.parser")
-# f = open("text",'w')
-# for script in soup.findAll("script"):
-#   script.extract()
-# f.write(soup.encode("utf-8"))
-# for itemcard in soup.findAll("a", {"class": "mod-link"}):
-#   itemcard.extract()
-#
-# for item in soup.findAll("a", {"data-ga-event-category": "eec_productlist"}):
-#   print (item['href'])
-#   f.write(item.encode("utf-8"))
-
-class GetDataContext(Thread):
-  def __init__(self, queue):
-    Thread.__init__(self)
-    self.queue = queue
-
-  def appendSet(self, s):
-    s.append()
+if __name__ == "__main__":
+  print("starting")
+  for i in range(15):
+    worker = Thread(target=getProduct)
+    worker.setDaemon(True)
+    worker.start()
+  createTaskQueue()
+  task_queue.join()
+  print ("Done")
+  LstProduct = list(set(out_queue.queue))
+  createProductLink(LstProduct)
+  while not product_queue.empty():
+    print (product_queue.get())
