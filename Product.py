@@ -119,9 +119,6 @@ class Product(object):
     self.soup = BeautifulSoup(html, "html.parser")
     for s in self.soup.findAll("script"):
       s.extract()
-    f = open ("product.txt","w")
-    f.write(self.soup.encode("UTF-8"))
-    f.close()
     if __name__ == "__main__":
       print ("Done!")
 
