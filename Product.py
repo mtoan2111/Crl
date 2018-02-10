@@ -20,16 +20,16 @@ class Product(object):
     self._ProductPrice = .0
     self._ProductSizes = list()
     self.soup = BeautifulSoup
-    self.getProductId()
+    self.__getProductId()
     if __name__ == "__main__":
       print ("-> Starting Analysis Product: " + self.ProductId)
-    self.getContentProduct()
-    self.getProductImg()
-    self.getProductName()
-    self.getProductPrice()
-    self.getProductSize()
-    self.getProductGender()
-    self.getProductBrand()
+    self.__getContentProduct()
+    self.__getProductImg()
+    self.__getProductName()
+    self.__getProductPrice()
+    self.__getProductSize()
+    self.__getProductGender()
+    self.__getProductBrand()
 
   @property
   def ProductName(self):
@@ -103,14 +103,14 @@ class Product(object):
     if self._ProductSizes != value:
       self._ProductSizes = value
 
-  def getProductId(self):
+  def __getProductId(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product ID: ", end='')
     self.ProductId = self.ProductLink.split("/")[-2]
     if __name__ == "__main__":
       print (self.ProductId)
 
-  def getContentProduct(self):
+  def __getContentProduct(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Content Page: ", end='')
     driver = webdriver.Chrome()
@@ -125,7 +125,7 @@ class Product(object):
     if __name__ == "__main__":
       print ("Done!")
 
-  def getProductImg(self):
+  def __getProductImg(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Images: ", end='')
     for s in self.soup.findAll("div",{"class" : "thumbnails"}):
@@ -136,14 +136,14 @@ class Product(object):
     if __name__ == "__main__":
       print (str(len(self.ProductImgs)) +" images were acquired!")
 
-  def getProductName(self):
+  def __getProductName(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Name: ", end='')
     self.ProductName = Translator().translate(self.soup.select("h1#itemName_h1")[0].text.encode("UTF-8").strip()).text.encode("UTF-8")
     if __name__ == "__main__":
       print (self.ProductName)
 
-  def getProductPrice(self):
+  def __getProductPrice(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Price: ", end='')
     price = self.soup.select("p.sale")[0].text.encode("UTF-8").strip().replace(",","")
@@ -152,7 +152,7 @@ class Product(object):
     if __name__ == "__main__":
       print ("VND" + str(self.ProductPrice))
 
-  def getProductSize(self):
+  def __getProductSize(self):
     if __name__ == "__main__":
       print ("-> Acquiring Available Product Size: ", end='')
     for s in self.soup.findAll("li", {"class" : "sold_store"}):
@@ -160,14 +160,14 @@ class Product(object):
     if __name__ == "__main__":
       print(str(len(self.ProductSizes)) + " available sizes were acquired!")
 
-  def getProductGender(self):
+  def __getProductGender(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Gender: ", end='')
     self.ProductGender = Translator().translate(self.soup.select("span.gender")[0].text.encode("UTF-8").strip()).text.encode("UTF-8")[:-1]
     if __name__ == "__main__":
       print (self.ProductGender)
 
-  def getProductBrand(self):
+  def __getProductBrand(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Brand: ", end='')
     self.ProductBrand = self.soup.select("h2#brand111")[0].findAll("span", {"class" : "adih_l"})[0].text.encode("UTF-8").strip()
