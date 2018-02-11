@@ -19,7 +19,7 @@ class Product(object):
     self._ProductImgs = list()
     self._ProductPrice = .0
     self._ProductSizes = list()
-    self._ProductOriginal = False
+    self._ProductSoldOut = False
     self.soup = BeautifulSoup
     self.__getProductId()
     if __name__ == "__main__":
@@ -105,13 +105,13 @@ class Product(object):
       self._ProductSizes = value
 
   @property
-  def ProductOriginal(self):
-    return self._ProductOriginal
+  def ProductSoldOut(self):
+    return self._ProductSoldOut
 
-  @ProductOriginal.setter
-  def ProductOriginal(self, value):
-    if self._ProductOriginal != value:
-      self._ProductOriginal = value
+  @ProductSoldOut.setter
+  def ProductSoldOut(self, value):
+    if self._ProductSoldOut != value:
+      self._ProductSoldOut = value
 
   def __getProductId(self):
     if __name__ == "__main__":
@@ -169,6 +169,8 @@ class Product(object):
       print ("-> Acquiring Available Product Size: ", end='')
     for s in self.soup.findAll("li", {"class" : "sold_store"}):
       self.ProductSizes.append(s.findAll("p")[0].text)
+    if len(self.ProductSizes) == 0:
+      self.ProductSoldOut = True
     if __name__ == "__main__":
       print(str(len(self.ProductSizes)) + " available sizes were acquired!")
 
@@ -178,8 +180,6 @@ class Product(object):
     getGender = self.soup.select("span.gender")
     if len(getGender) > 0:
       self.ProductGender = Translator().translate(getGender[0].text.encode("UTF-8").strip()).text.encode("UTF-8")[:-1]
-    else:
-      self.ProductOriginal = True
     if __name__ == "__main__":
       print (self.ProductGender)
 
@@ -190,4 +190,4 @@ class Product(object):
     if __name__ == "__main__":
       print (self.ProductBrand)
 
-td = Product("/products/S81177/")
+# td = Product("/products/S81177/")
