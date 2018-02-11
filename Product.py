@@ -19,6 +19,7 @@ class Product(object):
     self._ProductImgs = list()
     self._ProductPrice = .0
     self._ProductSizes = list()
+    self._ProductOriginal = False
     self.soup = BeautifulSoup
     self.__getProductId()
     if __name__ == "__main__":
@@ -103,6 +104,15 @@ class Product(object):
     if self._ProductSizes != value:
       self._ProductSizes = value
 
+  @property
+  def ProductOriginal(self):
+    return self._ProductOriginal
+
+  @ProductOriginal.setter
+  def ProductOriginal(self, value):
+    if self._ProductOriginal != value:
+      self._ProductOriginal = value
+
   def __getProductId(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product ID: ", end='')
@@ -117,8 +127,12 @@ class Product(object):
     driver.get("https://shop.adidas.jp" + self.ProductLink)
     html = driver.page_source
     self.soup = BeautifulSoup(html, "html.parser")
+    driver.close()
     for s in self.soup.findAll("script"):
       s.extract()
+    f = open ("product.txt", "w")
+    f.write(self.soup.encode("UTF-8"))
+    f.close()
     if __name__ == "__main__":
       print ("Done!")
 
@@ -143,8 +157,9 @@ class Product(object):
   def __getProductPrice(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Price: ", end='')
-    price = self.soup.select("p.sale")[0].text.encode("UTF-8").strip().replace(",","")
-    print (price + " -> ", end='')
+    price = self.soup.findAll("p", {"class": "sale"})[0].text.encode("UTF-8").strip().replace(",","")
+    if __name__ == "__main__":
+      print (price + " -> ", end='')
     self.ProductPrice = (Decimal(price[2:]) * 220) + 200000
     if __name__ == "__main__":
       print ("VND" + str(self.ProductPrice))
@@ -160,15 +175,30 @@ class Product(object):
   def __getProductGender(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Gender: ", end='')
-    self.ProductGender = Translator().translate(self.soup.select("span.gender")[0].text.encode("UTF-8").strip()).text.encode("UTF-8")[:-1]
+    getGender = self.soup.select("span.gender")
+    if len(getGender) > 0:
+      self.ProductGender = Translator().translate(getGender[0].text.encode("UTF-8").strip()).text.encode("UTF-8")[:-1]
+    else:
+      self.ProductOriginal = True
     if __name__ == "__main__":
       print (self.ProductGender)
 
   def __getProductBrand(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Brand: ", end='')
-    self.ProductBrand = self.soup.select("h2#brand111")[0].findAll("span", {"class" : "adih_l"})[0].text.encode("UTF-8").strip()
+    Brand = self.soup.select("h2#brand111")
+    if len(Brand) == 0:
+      Brand = self.soup.select("h2#brand112")
+    if len(Brand) == 0:
+      Brand = self.soup.select("h2#brand113")
+    if len(Brand) == 0:
+      Brand = self.soup.select("h2#brand117")
+    try:
+      self.ProductBrand = Brand[0].findAll("span", {"class" : "adih_l"})[0].text.encode("UTF-8").strip()
+    except:
+      print ("Error: Can't Get Product Of Brand: " + self.ProductId)
+      raise
     if __name__ == "__main__":
       print (self.ProductBrand)
 
-td = Product("/products/S82443/")
+td = Product("/products/BB3473/")

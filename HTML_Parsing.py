@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import urllib as ul
 import threading
 
 from Queue import Queue
@@ -8,14 +7,19 @@ from bs4 import BeautifulSoup
 from threading import Thread, Lock
 from selenium import webdriver
 from decimal import Decimal
+from Product import Product
+
 
 task_queue = Queue()
 product_queue = Queue()
+task_product_queue = Queue()
 out_queue = Queue()
+out_sub_queue = Queue()
 print_look = threading.Lock()
 source = "https://shop.adidas.jp/item/?cateId=1&condition=4%245&gendId=m&limit=120&page="
 pdt_source = "https://shop.adidas.jp"
 paging = 0
+MAX_SUB_THREAD = 4
 
 def getContentMainPage():
   print ("-> Acquiring Main Page Content: ", end='')
@@ -23,6 +27,7 @@ def getContentMainPage():
   driver.get(source + str(1))
   html = driver.page_source
   soup = BeautifulSoup(html, "html.parser")
+  driver.close()
   num_page = Decimal(soup.select("a.paging")[-1].text.strip())
   print (str(num_page) + " pages were acquired")
   return Decimal(soup.select("a.paging")[-1].text.strip())
@@ -32,7 +37,7 @@ def createTaskQueue():
   for i in range(1,paging + 1):
     task_queue.put(source + str(i))
 
-def getProduct(i, q):
+def getNumProduct(i, q):
   sub_source = q.get()
   with print_look:
     print ("+ " + threading.currentThread().getName() + " -> Processing: " + sub_source)
@@ -40,9 +45,10 @@ def getProduct(i, q):
   driver.get(sub_source)
   html = driver.page_source
   soup = BeautifulSoup(html,"html.parser")
+  driver.close()
   for item in soup.findAll("a",{"data-ga-event-category": "eec_productlist"}):
-    out_queue.put_nowait(item['href'])
-  task_queue.task_done()
+    out_queue.put_nowait(item['href'].encode("UTF-8"))
+  q.task_done()
   with print_look:
     print ("/ " + threading.currentThread().getName() + " -> Done!")
 
@@ -50,11 +56,31 @@ def createProductLink(link):
   for product in link:
     product_queue.put(pdt_source + product)
 
+def createTaskProductQueue():
+  print ("-> Create Product Queue: ", end='')
+  step = len(LstProduct)/MAX_SUB_THREAD
+  for n in range(step,len(LstProduct),step):
+    LstTemp = list()
+    for m in range(n - step, n, 1):
+      LstTemp.append(LstProduct[m])
+    task_product_queue.put(LstTemp)
+  print (str(task_product_queue.qsize()) + " elements in queue were created")
+
+def getProductDetails(q):
+  LstSubProduct = q.get()
+  for i in LstSubProduct:
+    with print_look:
+      print ("+ " + threading.currentThread().getName() + "\t-> Now Processing: " + i, end= '')
+    out_sub_queue.put(Product(i))
+    with print_look:
+      print ("\t-> Done!")
+  q.task_done()
+
 if __name__ == "__main__":
   paging = getContentMainPage()
   print("-> Starting")
   for i in range(paging):
-    worker = Thread(target=getProduct, args=(i, task_queue))
+    worker = Thread(target=getNumProduct, args=(i, task_queue))
     worker.setDaemon(True)
     worker.start()
   createTaskQueue()
@@ -64,3 +90,11 @@ if __name__ == "__main__":
   with out_queue.mutex:
     out_queue.queue.clear()
   print ("-> Done: " + str(len(LstProduct)) + " products were acquired")
+  createTaskProductQueue()
+  for i in range(task_product_queue.qsize()):
+    worker = Thread(target=getProductDetails, args=(task_product_queue,))
+    worker.setDaemon(True)
+    worker.start()
+  task_product_queue.join()
+
+
