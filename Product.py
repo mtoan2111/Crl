@@ -186,19 +186,8 @@ class Product(object):
   def __getProductBrand(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Brand: ", end='')
-    Brand = self.soup.select("h2#brand111")
-    if len(Brand) == 0:
-      Brand = self.soup.select("h2#brand112")
-    if len(Brand) == 0:
-      Brand = self.soup.select("h2#brand113")
-    if len(Brand) == 0:
-      Brand = self.soup.select("h2#brand117")
-    try:
-      self.ProductBrand = Brand[0].findAll("span", {"class" : "adih_l"})[0].text.encode("UTF-8").strip()
-    except:
-      print ("Error: Can't Get Product Of Brand: " + self.ProductId)
-      raise
+    self.ProductBrand = self.soup.findAll("span", {"class" : "adih_l"})[1].text.encode("UTF-8").strip()
     if __name__ == "__main__":
       print (self.ProductBrand)
 
-td = Product("/products/BB3473/")
+td = Product("/products/S81177/")
