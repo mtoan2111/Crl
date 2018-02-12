@@ -253,6 +253,8 @@ class Product(object):
       getGender = self.soup.select("span.gender")
       if len(getGender) > 0:
         self.ProductGender = Translator().translate(getGender[0].text.encode("UTF-8").strip()).text.encode("UTF-8")[:-1]
+      else:
+        self.ProductGender = "unisex"
       if __name__ == "__main__":
         print(self.ProductGender)
     except IndexError as e:
@@ -274,4 +276,4 @@ class Product(object):
       print ("\t-> Error: Can't get brand of product ", end='')
       print (e)
 
-# td = Product("/products/BC0048/")
+td = Product("/products/S75074/")
