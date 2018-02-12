@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 
 from Product import Product
+from AttackDB import AttackDB
 
 from selenium.common.exceptions import TimeoutException
 from requests.exceptions import ConnectionError
@@ -21,7 +22,7 @@ task_product_queue = Queue()
 out_queue = Queue()
 out_sub_queue = Queue()
 print_look = threading.Lock()
-source = "https://shop.adidas.jp/item/?cateId=1&condition=4%245&gendId=m&limit=120&page="
+source = "https://shop.adidas.jp/item/?cateId=1&condition=4%245&gendId=m&limit=40&page="
 pdt_source = "https://shop.adidas.jp"
 paging = 0
 MAX_SUB_THREAD = 4
@@ -87,14 +88,14 @@ def getProductDetails(q):
   LstSubProduct = q.get()
   for i in LstSubProduct:
     with print_look:
-      print ("+ " + threading.currentThread().getName() + "\t-> Now Processing: " + i, end= '')
+      print ("+ " + threading.currentThread().getName() + "\t-> Now Processing: " + i, end='')
     out_sub_queue.put(Product(i))
     with print_look:
       print ("\t-> Done!")
   q.task_done()
 
 if __name__ == "__main__":
-  paging = getContentMainPage() / 3
+  paging = getContentMainPage() / 16
   print("-> Starting")
   for i in range(paging):
     worker = Thread(target=getNumProduct, args=(i, task_queue))
@@ -114,7 +115,9 @@ if __name__ == "__main__":
     worker.start()
   task_product_queue.join()
   LstSubProduct = list(out_sub_queue.queue)
-  # for i in LstSubProduct:
-  #   print (i.ProductName)
+  for i in LstSubProduct:
+    print (i.ProductName, i.ProductId, i.ProductBrand, i.ProductImgs, i.ProductURL, i.ProductGender, i.ProductPrice)
+    print (" ")
+  AttackDB().insertDB(LstSubProduct[1])
 
 
