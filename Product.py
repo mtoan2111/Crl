@@ -211,8 +211,10 @@ class Product(object):
     if __name__ == "__main__":
       print ("-> Acquiring Available Product Size: ", end='')
     try:
-      for s in self.soup.findAll("li", {"class" : "sold_store"}):
-        self.ProductSizes.append(s.findAll("p")[0].text)
+      for s in self.soup.findAll("li", {"class" : "sold_out"}):
+        s.extract()
+      for s in self.soup.findAll("li", {"class" : "js-select_size"}):
+        self.ProductSizes.append(s.findAll("p")[0].text.encode("UTF-8").strip())
       if len(self.ProductSizes) == 0:
         self.ProductSoldOut = True
       if __name__ == "__main__":
@@ -249,4 +251,4 @@ class Product(object):
       print ("Error: Can't get brand of product ", end='')
       print (e)
 
-td = Product("/products/BC0048/")
+# td = Product("/products/BC0048/")
