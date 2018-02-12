@@ -57,7 +57,7 @@ def createTaskQueue():
 def getNumProduct(i, q):
   sub_source = q.get()
   with print_look:
-    print ("+ " + threading.currentThread().getName() + " -> Processing: " + sub_source, end='')
+    print ("+ " + threading.currentThread().getName() + " -> Processing: " + sub_source)
   driver = webdriver.Chrome()
   driver.get(sub_source)
   html = driver.page_source
@@ -67,7 +67,7 @@ def getNumProduct(i, q):
     out_queue.put_nowait(item['href'].encode("UTF-8"))
   q.task_done()
   with print_look:
-    print ("\t -> Done!")
+    print (". " + threading.currentThread().getName() + " -> Done!")
 
 def createProductLink(link):
   for product in link:

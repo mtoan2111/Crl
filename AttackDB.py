@@ -57,7 +57,7 @@ class AttackDB:
     except sql.Error as Err:
       print (Err)
 
-  def addProduct(self, _product):
+  def __addProduct(self, _product):
     try:
       if  __name__ == "__main__":
         print ("-> Inserting Product: ", end= '')
@@ -71,7 +71,7 @@ class AttackDB:
     except sql.Error as Err:
       print (Err)
 
-  def addProductImgs(self, _product):
+  def __addProductImgs(self, _product):
     try:
       if __name__ == "__main__":
         print ("-> Inserting Product Images ", end='')
@@ -86,7 +86,7 @@ class AttackDB:
     except sql.Error as Err:
       print (Err)
 
-  def addProductSizes(self, _product):
+  def __addProductSizes(self, _product):
     try:
       if __name__ == "__main__":
         print ("-> Inserting Product Sizes ", end='')

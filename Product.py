@@ -16,7 +16,7 @@ class Product(object):
   def __init__(self, s):
     self._ProductName = ''
     self._ProductId = ''
-    self._ProductBrand = ''
+    self._ProductBrand = list()
     self._ProductGender = ''
     self._ProductLink = s
     self._ProductImgs = list()
@@ -173,7 +173,17 @@ class Product(object):
     if __name__ == "__main__":
       print ("-> Acquiring Product Name: ", end='')
     try:
-      self.ProductName = Translator().translate(self.soup.select("h1#itemName_h1")[0].text.encode("UTF-8").strip()).text.encode("UTF-8")
+      _name = Translator().translate(self.soup.select("h1#itemName_h1")[0].text.strip())
+      s_name = _name.text.split(u'\u3010')
+      if len(s_name) > 1:
+        for i in range(1, len(s_name)):
+          self.ProductBrand.append(s_name[i][:-1].encode("UTF-8"))
+      else:
+        s_name = _name.text.split(" [")
+        if len(s_name) > 1:
+          for i in range(1, len(s_name)):
+            self.ProductBrand.append(s_name[i][:-1].encode("UTF-8"))
+      self.ProductName = s_name[0].encode("UTF-8")
       if __name__ == "__main__":
         print(self.ProductName)
     except IndexError as e:
@@ -228,11 +238,15 @@ class Product(object):
     if __name__ == "__main__":
       print ("-> Acquiring Product Brand: ", end='')
     try:
-      self.ProductBrand = self.soup.findAll("span", {"class" : "adih_l"})[1].text.encode("UTF-8").strip()
+      LstSpan = (self.soup.findAll("span", {"class" : "adih_l"}))
+      if len(LstSpan) == 2:
+        self.ProductBrand.append(self.soup.findAll("span", {"class" : "adih_l"})[0].text.encode("UTF-8").strip())
+      else:
+        self.ProductBrand.append(self.soup.findAll("span", {"class" : "adih_l"})[1].text.encode("UTF-8").strip())
       if __name__ == "__main__":
         print(self.ProductBrand)
     except IndexError as e:
       print ("Error: Can't get brand of product ", end='')
       print (e)
 
-# td = Product("/products/BY3014/")
+td = Product("/products/BC0048/")
