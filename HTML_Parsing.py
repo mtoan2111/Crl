@@ -3,11 +3,16 @@ from __future__ import print_function
 import threading
 
 from Queue import Queue
-from bs4 import BeautifulSoup
 from threading import Thread, Lock
-from selenium import webdriver
 from decimal import Decimal
+
+from bs4 import BeautifulSoup
+from selenium import webdriver
+
 from Product import Product
+
+from selenium.common.exceptions import TimeoutException
+from requests.exceptions import ConnectionError
 
 
 task_queue = Queue()
@@ -19,18 +24,29 @@ print_look = threading.Lock()
 source = "https://shop.adidas.jp/item/?cateId=1&condition=4%245&gendId=m&limit=120&page="
 pdt_source = "https://shop.adidas.jp"
 paging = 0
-MAX_SUB_THREAD = 4
+MAX_SUB_THREAD = 2
 
 def getContentMainPage():
   print ("-> Acquiring Main Page Content: ", end='')
-  driver = webdriver.Chrome()
-  driver.get(source + str(1))
-  html = driver.page_source
-  soup = BeautifulSoup(html, "html.parser")
-  driver.close()
-  num_page = Decimal(soup.select("a.paging")[-1].text.strip())
-  print (str(num_page) + " pages were acquired")
-  return Decimal(soup.select("a.paging")[-1].text.strip())
+  try:
+    driver = webdriver.Chrome()
+    driver.get(source + str(1))
+    html = driver.page_source
+    soup = BeautifulSoup(html, "html.parser")
+    driver.close()
+    num_page = Decimal(soup.select("a.paging")[-1].text.strip())
+    print (str(num_page) + " pages were acquired")
+    return Decimal(soup.select("a.paging")[-1].text.strip())
+  except ConnectionError as cErr:
+    print ("Error: Can't load this page ", end='')
+    print (cErr)
+    print ("Trying to reload this page")
+    driver.refresh()
+  except TimeoutException as tmout:
+    print ("Error: Can't load this page ", end='')
+    print (tmout)
+    print ("Trying to reload this page")
+    driver.refresh()
 
 
 def createTaskQueue():
@@ -96,5 +112,8 @@ if __name__ == "__main__":
     worker.setDaemon(True)
     worker.start()
   task_product_queue.join()
+  LstSubProduct = list(out_sub_queue.queue)
+  for i in LstSubProduct:
+    print (i.ProductName)
 
 

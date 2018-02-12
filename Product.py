@@ -8,6 +8,8 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from googletrans import Translator
 
+from selenium.common.exceptions import TimeoutException
+
 
 class Product(object):
 
@@ -144,6 +146,11 @@ class Product(object):
     except ConnectionError as e:
       print ("Error: Can't open the page ", end='')
       print (e)
+    except TimeoutException as tmout:
+      print ("Error: Can't load this page", end='')
+      print (tmout)
+      print ("Trying to reload this page")
+      driver.refresh()
 
   def __getProductImg(self):
     if __name__ == "__main__":
