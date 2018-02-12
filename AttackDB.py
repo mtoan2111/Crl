@@ -32,7 +32,7 @@ class AttackDB:
     if self._cur != value:
       self._cur = value
 
-  def Attack(self):
+  def attackDB(self):
     try:
       self.cnx = sql.connect(**self._config)
     except sql.Error as Err:
@@ -47,12 +47,58 @@ class AttackDB:
           print (Err)
     else:
       self.cur = self.cnx.cursor()
-      self.cur.execute("show database;")
-      for row in self.cur.fetchall():
-        print (row)
-    finally:
-      if self.cur:
-        self.cur.close()
-      if self.cnx:
-        self.cnx.close()
+
+  def insertDB(self, product):
+    self.addProduct()
+    self.addProductImgs()
+    self.addProductSizes()
+    try:
+      self.sur.commit()
+    except sql.Error as Err:
+      print (Err)
+
+  def addProduct(self, _product):
+    try:
+      if  __name__ == "__main__":
+        print ("-> Inserting Product: ", end= '')
+      _Product = ("INSERT INTO Product "
+             "(P_ID, P_Name, P_Brand, P_Gender, P_Price, P_SoldOut) "
+             "VALUE (?, ?, ?, ?, ?, ?)")
+      _Product_data = (_product.ProductId, _product.ProductName, _product.ProductBrand, _product.ProductGender, _product.ProductPrice, _product.ProductSoldOut)
+      self.cur.execute (_Product, _Product_data)
+      if __name__ == "__main__":
+        print ("Done!")
+    except sql.Error as Err:
+      print (Err)
+
+  def addProductImgs(self, _product):
+    try:
+      if __name__ == "__main__":
+        print ("-> Inserting Product Images ", end='')
+      _Imgs = ("INSERT INTO ProductImgs "
+               "(P_ID, P_IMG) "
+               "VALUE (?, ?)")
+      for img in _product.ProductImgs:
+        _ProductImg = (_product.ProductId, img)
+        self.cur.execute (_Imgs, _ProductImg)
+      if __name__ == "__main__":
+        print ("Done!")
+    except sql.Error as Err:
+      print (Err)
+
+  def addProductSizes(self, _product):
+    try:
+      if __name__ == "__main__":
+        print ("-> Inserting Product Sizes ", end='')
+      _Sizes = ("INSERT INTO ProductSizes "
+                "(P_ID, P_Size) "
+                "VALUE (?, ?)")
+      for size in _product.ProductSizes:
+        _ProductSize = (_product.ProductId, size)
+        self.cur.execute(_Sizes,_ProductSize)
+      if __name__ == "__main__":
+        print ("Done!")
+    except sql.Error as Err:
+      print (Err)
+
 
