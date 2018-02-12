@@ -124,7 +124,7 @@ class Product(object):
       if __name__ == "__main__":
         print (self.ProductId)
     except IndexError as e:
-      print ("Error: Can't get Id of product ", end='')
+      print ("\t-> Error: Can't get Id of product ", end='')
       print (e)
 
   def __getContentProduct(self):
@@ -147,12 +147,12 @@ class Product(object):
         if __name__ == "__main__":
           print ("Done!")
       except ConnectionError as e:
-        print ("Error: Can't open the page ", end='')
+        print ("\t-> Error: Can't open the page ", end='')
         print (e)
       except TimeoutException as tmout:
-        print ("Error: Can't load this page", end='')
+        print ("\t-> Error: Can't load this page ", end='')
         print (tmout)
-        print ("Trying to reload this page")
+        print ("Trying to reload ...")
 
   def __getProductImg(self):
     if __name__ == "__main__":
@@ -166,7 +166,7 @@ class Product(object):
       if __name__ == "__main__":
         print(str(len(self.ProductImgs)) + " images were acquired!")
     except IndexError as e:
-      print ("Error: Can't get images of product ", end='')
+      print ("\t-> Error: Can't get images of product ", end='')
       print (e)
 
   def __getProductName(self):
@@ -187,10 +187,10 @@ class Product(object):
       if __name__ == "__main__":
         print(self.ProductName)
     except IndexError as e:
-      print ("Error: Can't get name of product: " + self.ProductId + " ", end='')
+      print ("\t-> Error: Can't get name of product: " + self.ProductId + " ", end='')
       print (e)
     except ConnectionError as e:
-      print ("Error: Can't connect to server ", end='')
+      print ("\t-> Error: Can't connect to server ", end='')
       print (e)
 
   def __getProductPrice(self):
@@ -204,7 +204,7 @@ class Product(object):
       if __name__ == "__main__":
         print("VND" + str(self.ProductPrice))
     except IndexError as e:
-      print ("Error: Can't get price of product ", end='')
+      print ("\t-> Error: Can't get price of product ", end='')
       print (e)
 
   def __getProductSize(self):
@@ -220,7 +220,7 @@ class Product(object):
       if __name__ == "__main__":
         print(str(len(self.ProductSizes)) + " available sizes were acquired!")
     except IndexError as e:
-      print ("Error: Can't get size of product ", end='')
+      print ("\t-> Error: Can't get size of product ", end='')
       print (e)
 
   def __getProductGender(self):
@@ -233,7 +233,7 @@ class Product(object):
       if __name__ == "__main__":
         print(self.ProductGender)
     except IndexError as e:
-      print ("Error: Can't get gender of product ", end='')
+      print ("\t-> Error: Can't get gender of product ", end='')
       print (e)
 
   def __getProductBrand(self):
@@ -248,7 +248,7 @@ class Product(object):
       if __name__ == "__main__":
         print(self.ProductBrand)
     except IndexError as e:
-      print ("Error: Can't get brand of product ", end='')
+      print ("\t-> Error: Can't get brand of product ", end='')
       print (e)
 
 # td = Product("/products/BC0048/")

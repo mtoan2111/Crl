@@ -4,6 +4,7 @@ import mysql.connector as sql
 
 from mysql.connector import errorcode as errcd
 
+
 class AttackDB:
   def __init__(self):
     self._config = {

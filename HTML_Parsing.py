@@ -24,7 +24,7 @@ print_look = threading.Lock()
 source = "https://shop.adidas.jp/item/?cateId=1&condition=4%245&gendId=m&limit=120&page="
 pdt_source = "https://shop.adidas.jp"
 paging = 0
-MAX_SUB_THREAD = 2
+MAX_SUB_THREAD = 4
 
 def getContentMainPage():
   print ("-> Acquiring Main Page Content: ", end='')
@@ -41,14 +41,14 @@ def getContentMainPage():
       SuccessFLG = True
       return Decimal(soup.select("a.paging")[-1].text.strip())
     except ConnectionError as cErr:
-      print ("Error: Can't load this page ", end='')
+      print ("\t-> Error: Can't load this page ", end='')
       print (cErr)
-      print ("Trying to reload this page")
+      print ("\t-> Trying to reload this page")
       driver.refresh()
     except TimeoutException as tmout:
-      print ("Error: Can't load this page ", end='')
+      print ("\t-> Error: Can't load this page ", end='')
       print (tmout)
-      print ("Trying to reload this page")
+      print ("\t-> Trying to reload this page")
 
 def createTaskQueue():
   for i in range(1,paging + 1):
@@ -94,7 +94,7 @@ def getProductDetails(q):
   q.task_done()
 
 if __name__ == "__main__":
-  paging = getContentMainPage()
+  paging = getContentMainPage() / 3
   print("-> Starting")
   for i in range(paging):
     worker = Thread(target=getNumProduct, args=(i, task_queue))
@@ -114,7 +114,7 @@ if __name__ == "__main__":
     worker.start()
   task_product_queue.join()
   LstSubProduct = list(out_sub_queue.queue)
-  for i in LstSubProduct:
-    print (i.ProductName)
+  # for i in LstSubProduct:
+  #   print (i.ProductName)
 
 
