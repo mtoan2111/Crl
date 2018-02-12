@@ -130,27 +130,29 @@ class Product(object):
   def __getContentProduct(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Content Page: ", end='')
-    try:
-      driver = webdriver.Chrome()
-      driver.get("https://shop.adidas.jp" + self.ProductLink)
-      html = driver.page_source
-      self.soup = BeautifulSoup(html, "html.parser")
-      driver.close()
-      for s in self.soup.findAll("script"):
-        s.extract()
-      # f = open ("product.txt", "w")
-      # f.write(self.soup.encode("UTF-8"))
-      # f.close()
-      if __name__ == "__main__":
-        print ("Done!")
-    except ConnectionError as e:
-      print ("Error: Can't open the page ", end='')
-      print (e)
-    except TimeoutException as tmout:
-      print ("Error: Can't load this page", end='')
-      print (tmout)
-      print ("Trying to reload this page")
-      driver.refresh()
+    SuccessFLGS = False
+    while not SuccessFLGS:
+      try:
+        driver = webdriver.Chrome()
+        driver.get("https://shop.adidas.jp" + self.ProductLink)
+        html = driver.page_source
+        self.soup = BeautifulSoup(html, "html.parser")
+        driver.close()
+        for s in self.soup.findAll("script"):
+          s.extract()
+        # f = open ("product.txt", "w")
+        # f.write(self.soup.encode("UTF-8"))
+        # f.close()
+        SuccessFLGS = True
+        if __name__ == "__main__":
+          print ("Done!")
+      except ConnectionError as e:
+        print ("Error: Can't open the page ", end='')
+        print (e)
+      except TimeoutException as tmout:
+        print ("Error: Can't load this page", end='')
+        print (tmout)
+        print ("Trying to reload this page")
 
   def __getProductImg(self):
     if __name__ == "__main__":

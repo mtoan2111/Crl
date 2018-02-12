@@ -28,26 +28,27 @@ MAX_SUB_THREAD = 2
 
 def getContentMainPage():
   print ("-> Acquiring Main Page Content: ", end='')
-  try:
-    driver = webdriver.Chrome()
-    driver.get(source + str(1))
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")
-    driver.close()
-    num_page = Decimal(soup.select("a.paging")[-1].text.strip())
-    print (str(num_page) + " pages were acquired")
-    return Decimal(soup.select("a.paging")[-1].text.strip())
-  except ConnectionError as cErr:
-    print ("Error: Can't load this page ", end='')
-    print (cErr)
-    print ("Trying to reload this page")
-    driver.refresh()
-  except TimeoutException as tmout:
-    print ("Error: Can't load this page ", end='')
-    print (tmout)
-    print ("Trying to reload this page")
-    driver.refresh()
-
+  SuccessFLG = False
+  while not SuccessFLG:
+    try:
+      driver = webdriver.Chrome()
+      driver.get(source + str(1))
+      html = driver.page_source
+      soup = BeautifulSoup(html, "html.parser")
+      driver.close()
+      num_page = Decimal(soup.select("a.paging")[-1].text.strip())
+      print (str(num_page) + " pages were acquired")
+      SuccessFLG = True
+      return Decimal(soup.select("a.paging")[-1].text.strip())
+    except ConnectionError as cErr:
+      print ("Error: Can't load this page ", end='')
+      print (cErr)
+      print ("Trying to reload this page")
+      driver.refresh()
+    except TimeoutException as tmout:
+      print ("Error: Can't load this page ", end='')
+      print (tmout)
+      print ("Trying to reload this page")
 
 def createTaskQueue():
   for i in range(1,paging + 1):
@@ -56,7 +57,7 @@ def createTaskQueue():
 def getNumProduct(i, q):
   sub_source = q.get()
   with print_look:
-    print ("+ " + threading.currentThread().getName() + " -> Processing: " + sub_source)
+    print ("+ " + threading.currentThread().getName() + " -> Processing: " + sub_source, end='')
   driver = webdriver.Chrome()
   driver.get(sub_source)
   html = driver.page_source
@@ -66,7 +67,7 @@ def getNumProduct(i, q):
     out_queue.put_nowait(item['href'].encode("UTF-8"))
   q.task_done()
   with print_look:
-    print ("/ " + threading.currentThread().getName() + " -> Done!")
+    print ("\t -> Done!")
 
 def createProductLink(link):
   for product in link:
