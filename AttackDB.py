@@ -69,7 +69,7 @@ class AttackDB:
                        _product.ProductName,
                        _product.ProductBrand,
                        _product.ProductGender,
-                       _product.ProductPrice, 
+                       _product.ProductPrice,
                        _product.ProductSoldOut)
       self.cur.execute (_Product, _Product_data)
       if __name__ == "__main__":

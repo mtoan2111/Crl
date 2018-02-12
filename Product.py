@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import hashlib
+
 from copy import deepcopy
 from decimal import Decimal
 from requests.exceptions import ConnectionError
@@ -23,8 +25,10 @@ class Product(object):
     self._ProductPrice = .0
     self._ProductSizes = list()
     self._ProductSoldOut = False
+    self._ProductURL = ''
     self.soup = BeautifulSoup
     self.__getProductId()
+    self.__getProductURL()
     if __name__ == "__main__":
       print ("-> Starting Analysis Product: " + self.ProductId)
     self.__getContentProduct()
@@ -116,16 +120,34 @@ class Product(object):
     if self._ProductSoldOut != value:
       self._ProductSoldOut = value
 
+  @property
+  def ProductURL(self):
+    return self._ProductURL
+
+  @ProductURL.setter
+  def ProductURL(self, value):
+    if self._ProductURL != value:
+      self._ProductURL = value
+
   def __getProductId(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product ID: ", end='')
     try:
-      self.ProductId = self.ProductLink.split("/")[-2]
+      self.ProductId = self.ProductLink.split("/")[-2].encode("UTF-8")
       if __name__ == "__main__":
         print (self.ProductId)
     except IndexError as e:
       print ("\t-> Error: Can't get Id of product ", end='')
       print (e)
+
+  def __getProductURL(self):
+    if __name__ == "__main__":
+      print("-> Calculating Product URL: ", end='')
+    try:
+      self.ProductURL = hashlib.md5(self.ProductId).hexdigest()[:8]
+      print (self.ProductURL)
+    except IndexError as e:
+      print ("\t-> Can't calculate product url")
 
   def __getContentProduct(self):
     if __name__ == "__main__":
@@ -251,4 +273,4 @@ class Product(object):
       print ("\t-> Error: Can't get brand of product ", end='')
       print (e)
 
-# td = Product("/products/BC0048/")
+td = Product("/products/BC0048/")
