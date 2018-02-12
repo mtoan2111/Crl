@@ -65,7 +65,12 @@ class AttackDB:
       _Product = ("INSERT INTO Product "
              "(P_ID, P_Name, P_Brand, P_Gender, P_Price, P_SoldOut) "
              "VALUE (?, ?, ?, ?, ?, ?)")
-      _Product_data = (_product.ProductId, _product.ProductName, _product.ProductBrand, _product.ProductGender, _product.ProductPrice, _product.ProductSoldOut)
+      _Product_data = (_product.ProductId,
+                       _product.ProductName,
+                       _product.ProductBrand,
+                       _product.ProductGender,
+                       _product.ProductPrice, 
+                       _product.ProductSoldOut)
       self.cur.execute (_Product, _Product_data)
       if __name__ == "__main__":
         print ("Done!")
@@ -102,4 +107,29 @@ class AttackDB:
     except sql.Error as Err:
       print (Err)
 
+  def __addProductCategory(self, _product):
+    try:
+      if __name__ == "__main__":
+        print ("-> Inserting Product Category ", end='')
+      _Cate = ("INSERT INTO ProductCategory "
+               "(P_ID, P_CAT) "
+               "VALUE (?, ?)")
+      for cat in _product.ProductBrand:
+        _ProductCate =(_product.ProductId, cat)
+        self.cur.execute(_Cate, _ProductCate)
+      if __name__ == "__main__":
+        print ("Done!")
+    except sql.Error as Err:
+      print (Err)
 
+  def __addProductURL(self, _product):
+    try:
+      if __name__ == "__main__":
+        print ("-> Inserting Product URL", end='')
+        _URL = ("INSERT INTO ProductURL "
+                "(P_ID, P_URL) "
+                "VALUE (?, ?)")
+        _ProductURL = (_product.ProductId, _product.ProductURL)
+        self.cur.execute(_URL,_ProductURL)
+    except sql.Error as Err:
+      print (Err)
