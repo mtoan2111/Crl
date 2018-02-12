@@ -145,7 +145,8 @@ class Product(object):
       print("-> Calculating Product URL: ", end='')
     try:
       self.ProductURL = hashlib.md5(self.ProductId).hexdigest()[:8]
-      print (self.ProductURL)
+      if __name__ == "__main__":
+        print (self.ProductURL)
     except IndexError as e:
       print ("\t-> Can't calculate product url")
 
@@ -184,7 +185,7 @@ class Product(object):
       # print (type (s))
         for m in s.findAll("img"):
           if str(m["src"]).find(self.ProductId) != -1:
-            self.ProductImgs.append(str(m["src"]))
+            self.ProductImgs.append(str(m["src"]).replace("s-","z-").split("/")[-1])
       if __name__ == "__main__":
         print(str(len(self.ProductImgs)) + " images were acquired!")
     except IndexError as e:
@@ -273,4 +274,4 @@ class Product(object):
       print ("\t-> Error: Can't get brand of product ", end='')
       print (e)
 
-td = Product("/products/BC0048/")
+# td = Product("/products/BC0048/")
