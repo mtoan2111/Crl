@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from copy import deepcopy
 from decimal import Decimal
+from requests.exceptions import ConnectionError
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -116,78 +117,113 @@ class Product(object):
   def __getProductId(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product ID: ", end='')
-    self.ProductId = self.ProductLink.split("/")[-2]
-    if __name__ == "__main__":
-      print (self.ProductId)
+    try:
+      self.ProductId = self.ProductLink.split("/")[-2]
+      if __name__ == "__main__":
+        print (self.ProductId)
+    except IndexError as e:
+      print ("Error: Can't get Id of product ", end='')
+      print (e)
 
   def __getContentProduct(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Content Page: ", end='')
-    driver = webdriver.Chrome()
-    driver.get("https://shop.adidas.jp" + self.ProductLink)
-    html = driver.page_source
-    self.soup = BeautifulSoup(html, "html.parser")
-    driver.close()
-    for s in self.soup.findAll("script"):
-      s.extract()
-    f = open ("product.txt", "w")
-    f.write(self.soup.encode("UTF-8"))
-    f.close()
-    if __name__ == "__main__":
-      print ("Done!")
+    try:
+      driver = webdriver.Chrome()
+      driver.get("https://shop.adidas.jp" + self.ProductLink)
+      html = driver.page_source
+      self.soup = BeautifulSoup(html, "html.parser")
+      driver.close()
+      for s in self.soup.findAll("script"):
+        s.extract()
+      # f = open ("product.txt", "w")
+      # f.write(self.soup.encode("UTF-8"))
+      # f.close()
+      if __name__ == "__main__":
+        print ("Done!")
+    except ConnectionError as e:
+      print ("Error: Can't open the page ", end='')
+      print (e)
 
   def __getProductImg(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Images: ", end='')
-    for s in self.soup.findAll("div",{"class" : "thumbnails"}):
+    try:
+      for s in self.soup.findAll("div",{"class" : "thumbnails"}):
       # print (type (s))
-      for m in s.findAll("img"):
-        if str(m["src"]).find(self.ProductId) != -1:
-          self.ProductImgs.append(str(m["src"]))
-    if __name__ == "__main__":
-      print (str(len(self.ProductImgs)) +" images were acquired!")
+        for m in s.findAll("img"):
+          if str(m["src"]).find(self.ProductId) != -1:
+            self.ProductImgs.append(str(m["src"]))
+      if __name__ == "__main__":
+        print(str(len(self.ProductImgs)) + " images were acquired!")
+    except IndexError as e:
+      print ("Error: Can't get images of product ", end='')
+      print (e)
 
   def __getProductName(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Name: ", end='')
-    self.ProductName = Translator().translate(self.soup.select("h1#itemName_h1")[0].text.encode("UTF-8").strip()).text.encode("UTF-8")
-    if __name__ == "__main__":
-      print (self.ProductName)
+    try:
+      self.ProductName = Translator().translate(self.soup.select("h1#itemName_h1")[0].text.encode("UTF-8").strip()).text.encode("UTF-8")
+      if __name__ == "__main__":
+        print(self.ProductName)
+    except IndexError as e:
+      print ("Error: Can't get name of product: " + self.ProductId + " ", end='')
+      print (e)
+    except ConnectionError as e:
+      print ("Error: Can't connect to server ", end='')
+      print (e)
 
   def __getProductPrice(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Price: ", end='')
-    price = self.soup.findAll("p", {"class": "sale"})[0].text.encode("UTF-8").strip().replace(",","")
-    if __name__ == "__main__":
-      print (price + " -> ", end='')
-    self.ProductPrice = (Decimal(price[2:]) * 220) + 200000
-    if __name__ == "__main__":
-      print ("VND" + str(self.ProductPrice))
+    try:
+      price = self.soup.findAll("p", {"class": "sale"})[0].text.encode("UTF-8").strip().replace(",","")
+      if __name__ == "__main__":
+        print (price + " -> ", end='')
+      self.ProductPrice = (Decimal(price[2:]) * 220) + 200000
+      if __name__ == "__main__":
+        print("VND" + str(self.ProductPrice))
+    except IndexError as e:
+      print ("Error: Can't get price of product ", end='')
+      print (e)
 
   def __getProductSize(self):
     if __name__ == "__main__":
       print ("-> Acquiring Available Product Size: ", end='')
-    for s in self.soup.findAll("li", {"class" : "sold_store"}):
-      self.ProductSizes.append(s.findAll("p")[0].text)
-    if len(self.ProductSizes) == 0:
-      self.ProductSoldOut = True
-    if __name__ == "__main__":
-      print(str(len(self.ProductSizes)) + " available sizes were acquired!")
+    try:
+      for s in self.soup.findAll("li", {"class" : "sold_store"}):
+        self.ProductSizes.append(s.findAll("p")[0].text)
+      if len(self.ProductSizes) == 0:
+        self.ProductSoldOut = True
+      if __name__ == "__main__":
+        print(str(len(self.ProductSizes)) + " available sizes were acquired!")
+    except IndexError as e:
+      print ("Error: Can't get size of product ", end='')
+      print (e)
 
   def __getProductGender(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Gender: ", end='')
-    getGender = self.soup.select("span.gender")
-    if len(getGender) > 0:
-      self.ProductGender = Translator().translate(getGender[0].text.encode("UTF-8").strip()).text.encode("UTF-8")[:-1]
-    if __name__ == "__main__":
-      print (self.ProductGender)
+    try:
+      getGender = self.soup.select("span.gender")
+      if len(getGender) > 0:
+        self.ProductGender = Translator().translate(getGender[0].text.encode("UTF-8").strip()).text.encode("UTF-8")[:-1]
+      if __name__ == "__main__":
+        print(self.ProductGender)
+    except IndexError as e:
+      print ("Error: Can't get gender of product ", end='')
+      print (e)
 
   def __getProductBrand(self):
     if __name__ == "__main__":
       print ("-> Acquiring Product Brand: ", end='')
-    self.ProductBrand = self.soup.findAll("span", {"class" : "adih_l"})[1].text.encode("UTF-8").strip()
-    if __name__ == "__main__":
-      print (self.ProductBrand)
+    try:
+      self.ProductBrand = self.soup.findAll("span", {"class" : "adih_l"})[1].text.encode("UTF-8").strip()
+      if __name__ == "__main__":
+        print(self.ProductBrand)
+    except IndexError as e:
+      print ("Error: Can't get brand of product ", end='')
+      print (e)
 
-# td = Product("/products/S81177/")
+# td = Product("/products/BY3014/")
