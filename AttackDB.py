@@ -366,6 +366,6 @@ class LstProductDict(collections.MutableMapping,dict):
   def __contains__(self, item):
     return dict.__contains__(self, item)
 
-
-# td = AttackDB()
-# print (td.getProductDetail("BZ0202").ProductSizes)
+if __name__ == "__main__":
+  td = AttackDB()
+  print (td.getProductDetail("BZ0202").ProductSizes)

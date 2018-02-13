@@ -336,4 +336,5 @@ class Product(object):
       return _equal
     return _equal
 
-Product().getProductDetailsFromHTML("/products/BY9689/")
+if __name__ == "__main__":
+  Product().getProductDetailsFromHTML("/products/BY9689/")
