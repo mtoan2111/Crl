@@ -61,6 +61,7 @@ class AttackDB:
     self.__addProductSizes(product)
     self.__addProductCategory(product)
     self.__addProductURL(product)
+    self.__addProductDate(product)
     try:
       self.cnx.commit()
       self.__deattackDB()
@@ -147,6 +148,19 @@ class AttackDB:
     except sql.Error as Err:
       print ("* Error: \t",end='')
       print (Err)
+
+  def __addProductDate(self, _product):
+    try:
+      if __name__ == "__main__":
+        print ("-> Inserting Product Create", end='')
+      _Date ="""INSERT INTO ProductTimeCreate
+                (P_ID, P_DATE)
+                VALUE (?, ?)"""
+      _ProductDate = (_product.ProductId, _product.ProductDate)
+      self.cur.execute(_Date,_ProductDate)
+    except sql.Error as Err:
+      print("* Error: \t", end='')
+      print(Err)
 
   def __deattackDB(self):
     try:
@@ -353,5 +367,5 @@ class LstProductDict(collections.MutableMapping,dict):
     return dict.__contains__(self, item)
 
 
-td = AttackDB()
-print (td.getProductDetail("BZ0202").ProductSizes)
+# td = AttackDB()
+# print (td.getProductDetail("BZ0202").ProductSizes)

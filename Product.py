@@ -1,10 +1,12 @@
 from __future__ import print_function
 
 import hashlib
+import time
 
 from copy import deepcopy
 from decimal import Decimal
 from requests.exceptions import ConnectionError
+from datetime import datetime
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -26,6 +28,7 @@ class Product(object):
     self._ProductSizes = list()
     self._ProductSoldOut = False
     self._ProductURL = ''
+    self._ProductDate = None
     self.soup = BeautifulSoup
 
   @property
@@ -118,8 +121,18 @@ class Product(object):
     if self._ProductURL != value:
       self._ProductURL = value
 
+  @property
+  def ProductDate(self):
+    return self._ProductDate
+
+  @ProductDate.setter
+  def ProductDate(self, value):
+    if self._ProductDate != value:
+      self._ProductDate = value
+
   def getProductDetailsFromHTML(self,s):
     self.ProductLink = s
+    self.__getProductDate()
     self.__getProductId()
     self.__getProductURL()
     if __name__ == "__main__":
@@ -132,6 +145,14 @@ class Product(object):
     self.__getProductGender()
     self.__getProductBrand()
     return self
+
+  def __getProductDate(self):
+    if __name__ == "__main__":
+      print ("-> Acquiring Product Date: ", end='')
+    self.ProductDate = time.strftime('%Y-%m-%d %H:%M:%S')
+    # self.ProductDate = datetime.now().isoformat()
+    if __name__ == "__main__":
+      print(self.ProductDate)
 
   def __getProductId(self):
     if __name__ == "__main__":
