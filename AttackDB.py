@@ -186,20 +186,24 @@ class AttackDB:
 
   def getListProduct(self):
     try:
-      _Product ="""SELECT *
-                   FROM Product"""
+      _Product  ="""SELECT *
+                    FROM Product"""
 
-      _Imgs ="""SELECT *
-                FROM ProductImgs
-                WHERE P_ID = ?"""
+      _Imgs     ="""SELECT *
+                    FROM ProductImgs
+                    WHERE P_ID = ?"""
 
-      _Sizes ="""SELECT *
-                 FROM ProductSizes
-                 WHERE P_ID = ?"""
+      _Sizes    ="""SELECT *
+                    FROM ProductSizes
+                    WHERE P_ID = ?"""
 
-      _Brand ="""SELECT *
-                 FROM ProductCategory
-                 WHERE P_ID = ?"""
+      _Brand    ="""SELECT *
+                    FROM ProductCategory
+                    WHERE P_ID = ?"""
+
+      _URL      ="""SELECT *
+                    FROM ProductURL
+                    WHERE P_ID = ?"""
       self.cur.execute(_Product)
       _Product_Rows = self.cur
       for row in _Product_Rows:
@@ -226,8 +230,6 @@ class AttackDB:
         for brand in _Product_Brands:
           tmp.ProductBrand.append(str(brand[1]))
         self._LstProductDetails[tmp.ProductId] = tmp
-        # print (tmp.ProductId, tmp.ProductName, tmp.ProductBrand, tmp.ProductSizes, tmp.ProductImgs, tmp.ProductSoldOut, tmp.ProductGender, tmp.ProductPrice)
-
     except sql.Error as Err:
       print("* Error: \t", end='')
       print(Err)
@@ -240,7 +242,8 @@ class LstProductDict(collections.MutableMapping,dict):
     try:
       return dict.__getitem__(self,key)
     except KeyError as Err:
-      pass
+      print (Err, end='')
+      print (" doesn't exist in Product dict")
 
   def __setitem__(self, key, value):
     try:
@@ -250,6 +253,7 @@ class LstProductDict(collections.MutableMapping,dict):
         raise ValueError("'{v}' isn't an instance of Product".format(v=value))
     except ValueError as Err:
       print (Err)
+      pass
 
   def __delitem__(self, key):
     dict.__delitem__(self, key)
