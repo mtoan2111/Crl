@@ -18,6 +18,7 @@ class AttackDB:
     self._cnx = self._cur = None
     self.__attackDB()
     self._LstProductDetails = LstProductDict()
+    self._LstProductId = list()
 
   @property
   def cnx(self):
@@ -184,6 +185,22 @@ class AttackDB:
       print("* Error: \t", end='')
       print(Err)
 
+  def getListProductId(self):
+    try:
+      _Id       ="""SELECT P_ID
+                    FROM Product"""
+      self.cur.execute(_Id)
+      row = self.cur.fetchone()
+      while row is not None:
+        self._LstProductId.append(str(row[0]))
+        row = self.cur.fetchone()
+      self.__deattackDB()
+      return self._LstProductId
+    except sql.Error as Err:
+      print("* Error: \t", end='')
+      print(Err)
+
+
   def getListProduct(self):
     try:
       _Product  ="""SELECT *
@@ -244,6 +261,64 @@ class AttackDB:
       print("* Error: \t", end='')
       print(Err)
 
+  def getProductDetail(self, _ProductId):
+    try:
+      _Details  ="""SELECT *
+                    FROM Product
+                    WHERE P_ID = ?"""
+
+      _Imgs     ="""SELECT *
+                    FROM ProductImgs
+                    WHERE P_ID = ?"""
+
+      _Sizes    ="""SELECT *
+                    FROM ProductSizes
+                    WHERE P_ID = ?"""
+
+      _Brand    ="""SELECT *
+                    FROM ProductCategory
+                    WHERE P_ID = ?"""
+
+      _URL      ="""SELECT *
+                    FROM ProductURL
+                    WHERE P_ID = ?"""
+      _Product_Details = (_ProductId,)
+      self.cur.execute(_Details, _Product_Details)
+      row = self.cur.fetchone()
+      """Get all Product Details"""
+      # print (row)
+      tmp = Product()
+      tmp.ProductId = str(row[0])
+      tmp.ProductName = str(row[1])
+      tmp.ProductGender = str(row[2])
+      tmp.ProductPrice = Decimal(row[3].decode("UTF-8"))
+      tmp.ProductSoldOut = bool(row[4])
+      _ProductImgs = (_ProductId,)
+      self.cur.execute(_Imgs,_ProductImgs)
+      _Product_Imgs = self.cur.fetchone()
+      while _Product_Imgs is not None:
+        tmp.ProductImgs.append(str(_Product_Imgs[1]))
+        _Product_Imgs = self.cur.fetchone()
+      #
+      _ProductSizes = (_ProductId,)
+      self.cur.execute(_Sizes, _ProductSizes)
+      _Product_Sizes = self.cur.fetchone()
+      while _Product_Sizes is not None:
+        tmp.ProductSizes.append(str(_Product_Sizes[1]))
+        _Product_Sizes = self.cur.fetchone()
+      #
+      _ProductBrands =(_ProductId,)
+      self.cur.execute(_Brand, _ProductBrands)
+      _Product_Brands = self.cur.fetchone()
+      while _Product_Brands is not None:
+        tmp.ProductBrand.append(str(_Product_Brands[1]))
+        _Product_Brands = self.cur.fetchone()
+      self.__deattackDB()
+      return tmp
+    except sql.Error as Err:
+      print("* Error: \t", end='')
+      print(Err)
+
 import collections
 
 class LstProductDict(collections.MutableMapping,dict):
@@ -278,5 +353,5 @@ class LstProductDict(collections.MutableMapping,dict):
     return dict.__contains__(self, item)
 
 
-# td = AttackDB()
-# td.getListProduct()
+td = AttackDB()
+print (td.getProductDetail("BZ0202").ProductSizes)
