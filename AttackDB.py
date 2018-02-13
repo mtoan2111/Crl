@@ -1,8 +1,11 @@
 from __future__ import print_function
 
+from Product import Product
+
 import mysql.connector as sql
 
 from mysql.connector import errorcode as errcd
+from decimal import Decimal
 
 
 class AttackDB:
@@ -50,7 +53,7 @@ class AttackDB:
     else:
       self.cur = self.cnx.cursor(prepared=True)
 
-  def insertDB(self, product):
+  def insertRowToDB(self, product):
     self.__addProduct(product)
     self.__addProductImgs(product)
     self.__addProductSizes(product)
@@ -157,7 +160,7 @@ class AttackDB:
     result = False
     return result
 
-  def __updateDB(self, product):
+  def __updateRowToDB(self, product):
     try:
 
       """Do somethings... (haven't finished)"""
@@ -167,4 +170,64 @@ class AttackDB:
       print("* Error: \t", end='')
       print(Err)
 
+  def __deleteRowToDB(self, product):
+    try:
+      _Product ="""SELECT *
+                   FROM Product
+                      """
 
+      """Do somethings... (haven't finished)"""
+
+      self.__deattackDB()
+    except sql.Error as Err:
+      print("* Error: \t", end='')
+      print(Err)
+
+  def getListProduct(self):
+    try:
+      _Product ="""SELECT *
+                   FROM Product"""
+
+      _Imgs ="""SELECT *
+                       FROM ProductImgs
+                       WHERE P_ID = ?"""
+
+      _Sizes ="""SELECT *
+                 FROM ProductSizes
+                 WHERE P_ID = ?"""
+
+      _Brand ="""SELECT *
+                 FROM ProductCategory
+                 WHERE P_ID = ?"""
+      self.cur.execute(_Product)
+      _Product_Rows = self.cur
+      for row in _Product_Rows:
+        """Get all Product Details"""
+        tmp = Product()
+        tmp.ProductId = str(row[0])
+        tmp.ProductName = str(row[1])
+        tmp.ProductGender = str(row[2])
+        tmp.ProductPrice = Decimal(row[3].decode("UTF-8"))
+        tmp.ProductSoldOut = bool(row[4])
+        _ProductImgs = (tmp.ProductId,)
+        self.cur.execute(_Imgs,_ProductImgs)
+        _Product_Imgs = self.cur
+        for img in _Product_Imgs:
+          tmp.ProductImgs.append(str(img[1]))
+        _ProductSizes = (tmp.ProductId,)
+        self.cur.execute(_Sizes, _ProductSizes)
+        _Product_Sizes = self.cur
+        for size in _Product_Sizes:
+          tmp.ProductSizes.append(str(size[1]))
+        _ProductBrands =(tmp.ProductId,)
+        self.cur.execute(_Brand, _ProductBrands)
+        _Product_Brands = self.cur
+        for brand in _Product_Brands:
+          tmp.ProductBrand.append(str(brand[1]))
+        print (tmp.ProductId, tmp.ProductName, tmp.ProductBrand, tmp.ProductSizes, tmp.ProductImgs, tmp.ProductSoldOut, tmp.ProductGender, tmp.ProductPrice)
+    except sql.Error as Err:
+      print("* Error: \t", end='')
+      print(Err)
+
+td = AttackDB()
+td.getListProduct()
