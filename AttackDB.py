@@ -138,11 +138,11 @@ class AttackDB:
     try:
       if __name__ == "__main__":
         print ("-> Inserting Product URL", end='')
-        _URL = """INSERT INTO ProductURL
-                  (P_ID, P_URL)
-                  VALUE (?, ?)"""
-        _ProductURL = (_product.ProductId, _product.ProductURL)
-        self.cur.execute(_URL,_ProductURL)
+      _URL = """INSERT INTO ProductURL
+                (P_ID, P_URL)
+                VALUE (?, ?)"""
+      _ProductURL = (_product.ProductId, _product.ProductURL)
+      self.cur.execute(_URL,_ProductURL)
     except sql.Error as Err:
       print ("* Error: \t",end='')
       print (Err)
