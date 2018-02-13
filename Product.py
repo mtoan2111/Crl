@@ -200,7 +200,8 @@ class Product(object):
     if __name__ == "__main__":
       print ("-> Acquiring Product Name: ", end='')
     try:
-      _name = Translator().translate(self.soup.select("h1#itemName_h1")[0].text.strip())
+      # -*- encoding: utf-8 -*-
+      _name = Translator().translate(self.soup.select("h1#itemName_h1")[0].text.encode("UTF-8").strip(),src='ja')
       s_name = _name.text.split(u'\u3010')
       if len(s_name) > 1:
         for i in range(1, len(s_name)):
@@ -256,7 +257,7 @@ class Product(object):
     try:
       getGender = self.soup.select("span.gender")
       if len(getGender) > 0:
-        self.ProductGender = Translator().translate(getGender[0].text.encode("UTF-8").strip()).text.encode("UTF-8")[:-1]
+        self.ProductGender = Translator().translate(getGender[0].text.encode("UTF-8").strip(),src='ja').text.encode("UTF-8")[:-1]
       else:
         self.ProductGender = "unisex"
       if __name__ == "__main__":
@@ -314,4 +315,4 @@ class Product(object):
       return _equal
     return _equal
 
-# Product().getProductDetailsFromHTML("/products/")
+Product().getProductDetailsFromHTML("/products/BY9689/")
