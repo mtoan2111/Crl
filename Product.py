@@ -206,11 +206,10 @@ class Product(object):
     if __name__ == "__main__":
       print ("-> Acquiring Product Images: ", end='')
     try:
-      for s in self.soup.findAll("div",{"class" : "thumbnails"}):
-      # print (type (s))
-        for m in s.findAll("img"):
-          if str(m["src"]).find(self.ProductId) != -1:
-            self.ProductImgs.append(str(m["src"]).replace("s-","z-").split("/")[-1])
+      self.ProductImgs = [str(m["src"]).replace("s-","z-").split("/")[-1]
+                          for s in self.soup.findAll("div", {"class": "thumbnails"})
+                          for m in s.findAll("img")
+                          if str(m["src"]).find(self.ProductId) != -1]
       if __name__ == "__main__":
         print(str(len(self.ProductImgs)) + " images were acquired!")
     except IndexError as e:
@@ -225,13 +224,11 @@ class Product(object):
       _name = Translator().translate(self.soup.select("h1#itemName_h1")[0].text.encode("UTF-8").strip(),src='ja')
       s_name = _name.text.split(u'\u3010')
       if len(s_name) > 1:
-        for i in range(1, len(s_name)):
-          self.ProductBrand.append(s_name[i][:-1].encode("UTF-8"))
+        self.ProductBrand = [s_name[i][:-1].encode("UTF-8") for i in range(1, len(s_name))]
       else:
         s_name = _name.text.split(" [")
         if len(s_name) > 1:
-          for i in range(1, len(s_name)):
-            self.ProductBrand.append(s_name[i][:-1].encode("UTF-8"))
+          self.ProductBrand = [s_name[i][:-1].encode("UTF-8") for i in range(1, len(s_name))]
       self.ProductName = s_name[0].encode("UTF-8")
       if __name__ == "__main__":
         print(self.ProductName)
@@ -262,8 +259,8 @@ class Product(object):
     try:
       for s in self.soup.findAll("li", {"class" : "sold_out"}):
         s.extract()
-      for s in self.soup.findAll("li", {"class" : "js-select_size"}):
-        self.ProductSizes.append(s.findAll("p")[0].text.encode("UTF-8").strip())
+      self.ProductSizes = [s.findAll("p")[0].text.encode("UTF-8").strip()
+                           for s in self.soup.findAll("li", {"class" : "js-select_size"})]
       if len(self.ProductSizes) == 0:
         self.ProductSoldOut = True
       if __name__ == "__main__":
@@ -337,4 +334,7 @@ class Product(object):
     return _equal
 
 if __name__ == "__main__":
-  Product().getProductDetailsFromHTML("/products/BY9689/")
+  td = Product().getProductDetailsFromHTML("/products/BY9689/")
+  print (td.ProductBrand)
+  print (td.ProductSizes)
+  print (td.ProductImgs)

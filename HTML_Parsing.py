@@ -56,8 +56,7 @@ class HTML_Parsing:
         print ("\t-> Trying to reload ...")
 
   def __createTaskQueue(self):
-    for i in range(1,self._NumOfPaging + 1):
-      self._TaskPagingQueue.put(self._MainSource + str(i))
+    [self._TaskPagingQueue.put(self._MainSource + str(i)) for i in range(1,self._NumOfPaging + 1)]
 
   def __getNumProduct(self, i, q):
     _ProductSource = q.get()
@@ -69,28 +68,23 @@ class HTML_Parsing:
     _html = _driver.page_source
     _soup = BeautifulSoup(_html,"html.parser")
     _driver.close()
-    for item in _soup.findAll("a",{"data-ga-event-category": "eec_productlist"}):
-      self._OutPagingQueue.put_nowait(item['href'].encode("UTF-8"))
+    [self._OutPagingQueue.put_nowait(item['href'].encode("UTF-8"))
+                                     for item in _soup.findAll("a",{
+                                     "data-ga-event-category": "eec_productlist"})]
     q.task_done()
     if __name__ == "__main__":
       with self._PrintLook:
         print (". " + threading.currentThread().getName() + " -> Done!")
 
   def __createProductLink(self, link):
-    # for product in link:
-    #   self._ProductQueue.put(self._ProductSource + product)
-    for i in range(5):
-      self._ProductQueue.put(self._ProductSource + link[i])
+      [self._ProductQueue.put(self._ProductSource + link[i]) for i in range(5)]
 
   def __createTaskProductQueue(self):
     if __name__ == "__main__":
       print ("-> Create Product Queue: ", end='')
-    step = len(self._LstProduct)/self._MAX_SUB_THREAD/10
-    for n in range(step,len(self._LstProduct)/10,step):
-      LstTemp = list()
-      for m in range(n - step, n, 1):
-        LstTemp.append(self._LstProduct[m])
-      self._TaskProductQueue.put(LstTemp)
+    step = len(self._LstProduct)/self._MAX_SUB_THREAD
+    [self._TaskProductQueue.put([self._LstProduct[m] for m in range(n - step, n, 1)])
+                                for n in range(step, len(self._LstProduct), step)]
     if __name__ == "__main__":
       print (str(self._TaskProductQueue.qsize()) + " elements in queue were created")
 
@@ -107,7 +101,7 @@ class HTML_Parsing:
     q.task_done()
 
   def parsingHTML(self):
-    self._NumOfPaging = self.getContentMainPage() / 16
+    self._NumOfPaging = self.getContentMainPage() / 8
     if __name__ == "__main__":
       print("-> Starting")
     for i in range(self._NumOfPaging):
@@ -138,5 +132,5 @@ class HTML_Parsing:
     # AttackDB().insertRowToDB(_LstSubProduct[2])
 
 if __name__ == "__main__":
-  HTML_Parsing().parsingHTML()
+  print (HTML_Parsing().parsingHTML()[0].ProductId)
 
