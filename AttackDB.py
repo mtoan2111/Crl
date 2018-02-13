@@ -53,7 +53,6 @@ class AttackDB:
           print(Err)
     else:
       self.cur = self.cnx.cursor(prepared=True)
-      self.cur = self.cnx.cursor(prepared=True)
 
   def insertRowToDB(self, product):
     self.__addProduct(product)
@@ -152,8 +151,6 @@ class AttackDB:
     try:
       if self.cur:
         self.cur.close()
-      if self.cur:
-        self.cur.close()
       if self.cnx:
         self.cnx.close()
     except sql.Error as Err:
@@ -241,6 +238,7 @@ class AttackDB:
         while _Product_Brands is not None:
           self._LstProductDetails[key].ProductBrand.append(str(_Product_Brands[1]))
           _Product_Brands = self.cur.fetchone()
+      self.__deattackDB()
       return self._LstProductDetails
     except sql.Error as Err:
       print("* Error: \t", end='')
