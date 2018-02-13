@@ -7,7 +7,6 @@ import mysql.connector as sql
 from mysql.connector import errorcode as errcd
 from decimal import Decimal
 
-
 class AttackDB:
   def __init__(self):
     self._config = {
@@ -18,6 +17,8 @@ class AttackDB:
     }
     self._cnx = self._cur = None
     self.__attackDB()
+    self._LstProductDetails = LstProductDict()
+
   @property
   def cnx(self):
     return self._cnx
@@ -189,8 +190,8 @@ class AttackDB:
                    FROM Product"""
 
       _Imgs ="""SELECT *
-                       FROM ProductImgs
-                       WHERE P_ID = ?"""
+                FROM ProductImgs
+                WHERE P_ID = ?"""
 
       _Sizes ="""SELECT *
                  FROM ProductSizes
@@ -224,10 +225,45 @@ class AttackDB:
         _Product_Brands = self.cur
         for brand in _Product_Brands:
           tmp.ProductBrand.append(str(brand[1]))
-        print (tmp.ProductId, tmp.ProductName, tmp.ProductBrand, tmp.ProductSizes, tmp.ProductImgs, tmp.ProductSoldOut, tmp.ProductGender, tmp.ProductPrice)
+        self._LstProductDetails[tmp.ProductId] = tmp
+        # print (tmp.ProductId, tmp.ProductName, tmp.ProductBrand, tmp.ProductSizes, tmp.ProductImgs, tmp.ProductSoldOut, tmp.ProductGender, tmp.ProductPrice)
+
     except sql.Error as Err:
       print("* Error: \t", end='')
       print(Err)
 
+import collections
+
+class LstProductDict(collections.MutableMapping,dict):
+
+  def __getitem__(self, key):
+    try:
+      return dict.__getitem__(self,key)
+    except KeyError as Err:
+      pass
+
+  def __setitem__(self, key, value):
+    try:
+      if isinstance(value, Product):
+        dict.__setitem__(self, key, value)
+      else:
+        raise ValueError("'{v}' isn't an instance of Product".format(v=value))
+    except ValueError as Err:
+      print (Err)
+
+  def __delitem__(self, key):
+    dict.__delitem__(self, key)
+
+  def __iter__(self):
+    return dict.__iter__(self)
+
+  def __len__(self):
+    return dict.__len__(self)
+
+  def __contains__(self, item):
+    return dict.__contains__(self, item)
+
+
 td = AttackDB()
 td.getListProduct()
+print (td._LstProductDetails)
