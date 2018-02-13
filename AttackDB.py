@@ -53,6 +53,7 @@ class AttackDB:
           print(Err)
     else:
       self.cur = self.cnx.cursor(prepared=True)
+      self.cur = self.cnx.cursor(prepared=True)
 
   def insertRowToDB(self, product):
     self.__addProduct(product)
@@ -151,6 +152,8 @@ class AttackDB:
     try:
       if self.cur:
         self.cur.close()
+      if self.cur:
+        self.cur.close()
       if self.cnx:
         self.cnx.close()
     except sql.Error as Err:
@@ -205,31 +208,40 @@ class AttackDB:
                     FROM ProductURL
                     WHERE P_ID = ?"""
       self.cur.execute(_Product)
-      _Product_Rows = self.cur
-      for row in _Product_Rows:
+      row = self.cur.fetchone()
+      while row is not None:
         """Get all Product Details"""
+        # print (row)
         tmp = Product()
         tmp.ProductId = str(row[0])
         tmp.ProductName = str(row[1])
         tmp.ProductGender = str(row[2])
         tmp.ProductPrice = Decimal(row[3].decode("UTF-8"))
         tmp.ProductSoldOut = bool(row[4])
-        _ProductImgs = (tmp.ProductId,)
-        self.cur.execute(_Imgs,_ProductImgs)
-        _Product_Imgs = self.cur
-        for img in _Product_Imgs:
-          tmp.ProductImgs.append(str(img[1]))
-        _ProductSizes = (tmp.ProductId,)
-        self.cur.execute(_Sizes, _ProductSizes)
-        _Product_Sizes = self.cur
-        for size in _Product_Sizes:
-          tmp.ProductSizes.append(str(size[1]))
-        _ProductBrands =(tmp.ProductId,)
-        self.cur.execute(_Brand, _ProductBrands)
-        _Product_Brands = self.cur
-        for brand in _Product_Brands:
-          tmp.ProductBrand.append(str(brand[1]))
         self._LstProductDetails[tmp.ProductId] = tmp
+        row = self.cur.fetchone()
+      for key in self._LstProductDetails.keys():
+        _ProductImgs = (key,)
+        self.cur.execute(_Imgs,_ProductImgs)
+        _Product_Imgs = self.cur.fetchone()
+        while _Product_Imgs is not None:
+          self._LstProductDetails[key].ProductImgs.append(str(_Product_Imgs[1]))
+          _Product_Imgs = self.cur.fetchone()
+        #
+        _ProductSizes = (key,)
+        self.cur.execute(_Sizes, _ProductSizes)
+        _Product_Sizes = self.cur.fetchone()
+        while _Product_Sizes is not None:
+          self._LstProductDetails[key].ProductSizes.append(str(_Product_Sizes[1]))
+          _Product_Sizes = self.cur.fetchone()
+        #
+        _ProductBrands =(key,)
+        self.cur.execute(_Brand, _ProductBrands)
+        _Product_Brands = self.cur.fetchone()
+        while _Product_Brands is not None:
+          self._LstProductDetails[key].ProductBrand.append(str(_Product_Brands[1]))
+          _Product_Brands = self.cur.fetchone()
+      return self._LstProductDetails
     except sql.Error as Err:
       print("* Error: \t", end='')
       print(Err)
@@ -268,6 +280,5 @@ class LstProductDict(collections.MutableMapping,dict):
     return dict.__contains__(self, item)
 
 
-td = AttackDB()
-td.getListProduct()
-print (td._LstProductDetails)
+# td = AttackDB()
+# td.getListProduct()
