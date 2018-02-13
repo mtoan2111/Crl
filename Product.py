@@ -15,29 +15,18 @@ from selenium.common.exceptions import TimeoutException
 
 class Product(object):
 
-  def __init__(self, s):
+  def __init__(self):
     self._ProductName = ''
     self._ProductId = ''
     self._ProductBrand = list()
     self._ProductGender = ''
-    self._ProductLink = s
+    self._ProductLink = ''
     self._ProductImgs = list()
     self._ProductPrice = .0
     self._ProductSizes = list()
     self._ProductSoldOut = False
     self._ProductURL = ''
     self.soup = BeautifulSoup
-    self.__getProductId()
-    self.__getProductURL()
-    if __name__ == "__main__":
-      print ("-> Starting Analysis Product: " + self.ProductId)
-    self.__getContentProduct()
-    self.__getProductImg()
-    self.__getProductName()
-    self.__getProductPrice()
-    self.__getProductSize()
-    self.__getProductGender()
-    self.__getProductBrand()
 
   @property
   def ProductName(self):
@@ -90,7 +79,7 @@ class Product(object):
 
   @ProductImgs.setter
   def ProductImgs(self, value):
-    if cmp(self._ProductImgs, value) != 0:
+    if self.ProductImgs != value:
       self._ProductImgs = deepcopy(value)
 
   @property
@@ -128,6 +117,21 @@ class Product(object):
   def ProductURL(self, value):
     if self._ProductURL != value:
       self._ProductURL = value
+
+  def getProductDetailsFromHTML(self,s):
+    self.ProductLink = s
+    self.__getProductId()
+    self.__getProductURL()
+    if __name__ == "__main__":
+      print("-> Starting Analysis Product: " + self.ProductId)
+    self.__getContentProduct()
+    self.__getProductImg()
+    self.__getProductName()
+    self.__getProductPrice()
+    self.__getProductSize()
+    self.__getProductGender()
+    self.__getProductBrand()
+    return self
 
   def __getProductId(self):
     if __name__ == "__main__":
@@ -276,4 +280,38 @@ class Product(object):
       print ("\t-> Error: Can't get brand of product ", end='')
       print (e)
 
-td = Product("/products/S75074/")
+  def equal(self,_other):
+    _equal = False
+    if self.ProductId == _other.ProductId:
+      _equal = True
+      return _equal
+    if self.ProductGender == _other.ProductGender:
+      _equal = True
+      return _equal
+    if self.ProductURL == _other.ProductURL:
+      _equal = True
+      return _equal
+    if self.ProductBrand == _other.ProductBrand:
+      _equal = True
+      return _equal
+    if self.ProductName == _other.ProductName:
+      _equal = True
+      return _equal
+    if self.ProductPrice == _other.ProductPrice:
+      _equal = True
+      return _equal
+    if self.ProductLink == _other.ProductLink:
+      _equal = True
+      return _equal
+    if self.ProductSizes == _other.ProductSizes:
+      _equal = True
+      return _equal
+    if self.ProductImgs == _other.ProductImgs:
+      _equal = True
+      return _equal
+    if self.ProductBrand == _other.ProductBrand:
+      _equal = True
+      return _equal
+    return _equal
+
+# Product().getProductDetailsFromHTML("/products/")

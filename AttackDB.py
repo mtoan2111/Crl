@@ -152,3 +152,19 @@ class AttackDB:
     except sql.Error as Err:
       print ("* Error: \t",end='')
       print (Err)
+
+  def __rowExist(self):
+    result = False
+    return result
+
+  def __updateDB(self, product):
+    try:
+
+      """Do somethings... (haven't finished)"""
+
+      self.__deattackDB()
+    except sql.Error as Err:
+      print("* Error: \t", end='')
+      print(Err)
+
+

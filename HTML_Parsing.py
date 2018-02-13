@@ -89,7 +89,7 @@ def getProductDetails(q):
   for i in LstSubProduct:
     with print_look:
       print ("+ " + threading.currentThread().getName() + "\t-> Now Processing: " + i, end='')
-    out_sub_queue.put(Product(i))
+    out_sub_queue.put(Product().getProductDetailsFromHTML(i))
     with print_look:
       print ("\t-> Done!")
   q.task_done()
@@ -118,6 +118,6 @@ if __name__ == "__main__":
   for i in LstSubProduct:
     print (i.ProductName, i.ProductId, i.ProductBrand, i.ProductImgs, i.ProductURL, i.ProductGender, i.ProductPrice)
     print (" ")
-  AttackDB().insertDB(LstSubProduct[1])
+  # AttackDB().insertDB(LstSubProduct[1])
 
 
