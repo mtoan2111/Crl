@@ -80,12 +80,23 @@ class HTML_Parsing:
       [self._ProductQueue.put(self._ProductSource + link[i])
        for i in range(5)]
 
+  # def __createTaskProductQueue(self):
+  #   print ("-> Create Product Queue: ", end='')
+  #   step = len(self._LstProduct)/self._MAX_SUB_THREAD
+  #   [self._TaskProductQueue.put([self._LstProduct[m] for m in range(n - step, n, 1)])
+  #                               for n in range(step, len(self._LstProduct) + step, step)]
+  #   print (str(self._TaskProductQueue.qsize()) + " elements in queue were created")
   def __createTaskProductQueue(self):
     print ("-> Create Product Queue: ", end='')
-    step = len(self._LstProduct)/self._MAX_SUB_THREAD
-    [self._TaskProductQueue.put([self._LstProduct[m] for m in range(n - step, n, 1)])
-                                for n in range(step, len(self._LstProduct), step)]
+    for i in range(self._MAX_SUB_THREAD):
+      self._TaskProductQueue.put(list())
+    for i in range(len(self._LstProduct)):
+      self._TaskProductQueue.queue[i % self._MAX_SUB_THREAD].append(self._LstProduct[i])
     print (str(self._TaskProductQueue.qsize()) + " elements in queue were created")
+
+
+  # for i in range (len(self._LstProduct)):
+    #   _LstTmp = lis
 
   def __getProductDetails(self, q):
     LstSubProduct = q.get()
@@ -99,7 +110,7 @@ class HTML_Parsing:
     q.task_done()
 
   def __parsingHTML(self):
-    self._NumOfPaging = self.__getContentMainPage()
+    self._NumOfPaging = self.__getContentMainPage() / 16
     if __name__ == "__main__":
       print("-> Starting")
     for i in range(self._NumOfPaging):
@@ -109,7 +120,7 @@ class HTML_Parsing:
     self.__createTaskQueue()
     self._TaskPagingQueue.join()
     self._LstProduct = list(set(self._OutPagingQueue.queue))
-    self.__createProductLink(self._LstProduct)
+    # self.__createProductLink(self._LstProduct)
     with self._OutPagingQueue.mutex:
       self._OutPagingQueue.queue.clear()
     print ("-> Done: " + str(len(self._LstProduct)) + " products were acquired")
