@@ -189,6 +189,7 @@ class AttackDB:
     except sql.Error as Err:
       print("* Error: \t", end='')
       print(Err)
+      return 0
 
   def __updateRowToDB(self, _product):
     try:

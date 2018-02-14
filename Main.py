@@ -12,7 +12,7 @@ if __name__ == "__main__":
   _DB = AttackDB()
   _LstProduct = HTML_Parsing().parsingHTML()
   _LstProductDB = _DB.getListProductId()
-  _LstProductNew = [product for product in _LstProduct if product.ProductId not in _LstProductDB]
+  # _LstProductNew = [product for product in _LstProduct if product.ProductId not in _LstProductDB]
   for product in _LstProduct:
     if product.ProductId not in _LstProductDB:
       _LstProductNew.append(product)
@@ -21,8 +21,9 @@ if __name__ == "__main__":
   if len(_LstProductNew) > 0:
     print ("-> Have " + str(len(_LstProductNew)) + " new items")
     for _product in _LstProductNew:
-      _DB.insertRowToDB(_product)
-      print (_product.ProductId)
+      print ("-> " + _product.ProductId + "\t -> Inserting: ", end='')
+      if _DB.insertRowToDB(_product):
+        print ("Done!")
   else:
     print ("-> Doesn't have any new items")
   if len(_LstProductOld) > 0:

@@ -331,7 +331,7 @@ class Product(object):
     return _equal
 
 if __name__ == "__main__":
-  td = Product().getProductDetailsFromHTML("/products/BY9689/")
+  td = Product().getProductDetailsFromHTML("/products/BZ0461/")
   print (td.ProductBrand)
   print (td.ProductSizes)
   print (td.ProductImgs)
