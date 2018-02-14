@@ -6,15 +6,34 @@ from Product import Product
 
 _LstProductCurrent = list()
 _LstProductDB = dict()
+_LstProductNew = list()
+_LstProductOld = list()
 if __name__ == "__main__":
- _LstProduct = HTML_Parsing().parsingHTML()
- _LstProductDB = AttackDB().getListProductId()
- print ([i.ProductId for i in _LstProduct])
- print (_LstProductDB)
- print ([x for x in _LstProduct if x in _LstProductDB])
- # for productHTML in _LstProduct:
- #   if productHTML.ProductId in _LstProductDB:
- #     print ("Existed")
+  _DB = AttackDB()
+  _LstProduct = HTML_Parsing().parsingHTML()
+  _LstProductDB = _DB.getListProductId()
+  _LstProductNew = [product for product in _LstProduct if product.ProductId not in _LstProductDB]
+  for product in _LstProduct:
+    if product.ProductId not in _LstProductDB:
+      _LstProductNew.append(product)
+    else:
+      _LstProductOld.append(product)
+  if len(_LstProductNew) > 0:
+    print ("-> Have " + str(len(_LstProductNew)) + " new items")
+    for _product in _LstProductNew:
+      _DB.insertRowToDB(_product)
+      print (_product.ProductId)
+  else:
+    print ("-> Doesn't have any new items")
+  if len(_LstProductOld) > 0:
+    print("-> Checking "+ str(len(_LstProductOld)) + " old item(s) to get new details.")
+    # -*- Compare old product -*-
+    for _product in _LstProductOld:
+      _TmpProduct = _DB.getProductDetail(_product.ProductId)
+      if not _TmpProduct.equal(_product):
+        # -*- If have new stuffs -*-
+        _DB.updateRowToDB(_product)
+      else:
+        print (str(_product.ProductId) + " doesn't have any new details")
+  _DB.deattackDB()
 
- # for product in _LstProduct:
- #  AttackDB().insertRowToDB(product)

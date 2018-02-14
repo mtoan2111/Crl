@@ -38,6 +38,24 @@ class AttackDB:
     if self._cur != value:
       self._cur = value
 
+  def insertRowToDB(self,product):
+    return self.__insertRowToDB(product)
+
+  def deattackDB(self):
+    return self.__deattackDB()
+
+  def getListProductId(self):
+    return self.__getListProductId()
+
+  def getProductDetail(self, _productId):
+    return self.__getProductDetail(_productId)
+
+  def getListProduct(self):
+    return self.__getListProduct()
+
+  def updateRowToDB(self, _product):
+    return self.__updateRowToDB(_product)
+
   def __attackDB(self):
     try:
       self.cnx = sql.connect(**self._config)
@@ -54,20 +72,6 @@ class AttackDB:
           print(Err)
     else:
       self.cur = self.cnx.cursor(prepared=True)
-
-  def insertRowToDB(self, product):
-    self.__addProduct(product)
-    self.__addProductImgs(product)
-    self.__addProductSizes(product)
-    self.__addProductCategory(product)
-    self.__addProductURL(product)
-    self.__addProductDate(product)
-    try:
-      self.cnx.commit()
-      self.__deattackDB()
-    except sql.Error as Err:
-      print ("* Error: \t",end='')
-      print (Err)
 
   def __addProduct(self, _product):
     try:
@@ -172,34 +176,48 @@ class AttackDB:
       print ("* Error: \t",end='')
       print (Err)
 
-  def __rowExist(self):
-    result = False
-    return result
-
-  def __updateRowToDB(self, product):
+  def __insertRowToDB(self, product):
+    self.__addProduct(product)
+    self.__addProductImgs(product)
+    self.__addProductSizes(product)
+    self.__addProductCategory(product)
+    self.__addProductURL(product)
+    self.__addProductDate(product)
     try:
-
-      """Do somethings... (haven't finished)"""
-
-      self.__deattackDB()
+      self.cnx.commit()
+      return 1
     except sql.Error as Err:
       print("* Error: \t", end='')
       print(Err)
 
-  def __deleteRowToDB(self, product):
+  def __updateRowToDB(self, _product):
     try:
-      _Product ="""SELECT *
-                   FROM Product
-                      """
-
-      """Do somethings... (haven't finished)"""
-
-      self.__deattackDB()
+      self.__deleteRowToDB(_product.ProductId)
+      self.__insertRowToDB(_product)
     except sql.Error as Err:
       print("* Error: \t", end='')
       print(Err)
 
-  def getListProductId(self):
+  def __deleteRowToDB(self, _product):
+    try:
+      _Del ="""DELETE t1, t2, t3, t4, t5, t6
+               FROM Product as t1 INNER JOIN ProductCategory as t2 INNER JOIN 
+                    ProductImgs as t3 INNER JOIN ProductSizes as t4 INNER JOIN
+                    ProductTimeCreate as t5 INNER JOIN ProductURL as t6
+               WHERE t1.P_ID = t2.P_ID AND
+                     t1.P_ID = t3.P_ID AND
+                     t1.P_ID = t4.P_ID AND
+                     t1.P_ID = t5.P_ID AND
+                     t1.P_ID = t6.P_ID AND
+                     t1.P_ID LIKE ?"""
+      _Product_Del = (_product.ProductId,)
+      self.cur.execute (_Del, _Product_Del)
+      self.cnx.commit()
+    except sql.Error as Err:
+      print("* Error: \t", end='')
+      print(Err)
+
+  def __getListProductId(self):
     try:
       _Id       ="""SELECT P_ID
                     FROM Product"""
@@ -208,33 +226,31 @@ class AttackDB:
       while row is not None:
         self._LstProductId.append(str(row[0]))
         row = self.cur.fetchone()
-      self.__deattackDB()
       return self._LstProductId
     except sql.Error as Err:
       print("* Error: \t", end='')
       print(Err)
 
-
-  def getListProduct(self):
+  def __getListProduct(self):
     try:
       _Product  ="""SELECT *
                     FROM Product"""
 
       _Imgs     ="""SELECT *
                     FROM ProductImgs
-                    WHERE P_ID = ?"""
+                    WHERE P_ID LIKE ?"""
 
       _Sizes    ="""SELECT *
                     FROM ProductSizes
-                    WHERE P_ID = ?"""
+                    WHERE P_ID LIKE ?"""
 
       _Brand    ="""SELECT *
                     FROM ProductCategory
-                    WHERE P_ID = ?"""
+                    WHERE P_ID LIKE ?"""
 
       _URL      ="""SELECT *
                     FROM ProductURL
-                    WHERE P_ID = ?"""
+                    WHERE P_ID LIKE ?"""
       self.cur.execute(_Product)
       row = self.cur.fetchone()
       while row is not None:
@@ -269,33 +285,32 @@ class AttackDB:
         while _Product_Brands is not None:
           self._LstProductDetails[key].ProductBrand.append(str(_Product_Brands[1]))
           _Product_Brands = self.cur.fetchone()
-      self.__deattackDB()
       return self._LstProductDetails
     except sql.Error as Err:
       print("* Error: \t", end='')
       print(Err)
 
-  def getProductDetail(self, _ProductId):
+  def __getProductDetail(self, _ProductId):
     try:
       _Details  ="""SELECT *
                     FROM Product
-                    WHERE P_ID = ?"""
+                    WHERE P_ID LIKE ?"""
 
       _Imgs     ="""SELECT *
                     FROM ProductImgs
-                    WHERE P_ID = ?"""
+                    WHERE P_ID LIKE ?"""
 
       _Sizes    ="""SELECT *
                     FROM ProductSizes
-                    WHERE P_ID = ?"""
+                    WHERE P_ID LIKE ?"""
 
       _Brand    ="""SELECT *
                     FROM ProductCategory
-                    WHERE P_ID = ?"""
+                    WHERE P_ID LIKE ?"""
 
       _URL      ="""SELECT *
                     FROM ProductURL
-                    WHERE P_ID = ?"""
+                    WHERE P_ID LIKE ?"""
       _Product_Details = (_ProductId,)
       self.cur.execute(_Details, _Product_Details)
       row = self.cur.fetchone()
@@ -327,7 +342,6 @@ class AttackDB:
       while _Product_Brands is not None:
         tmp.ProductBrand.append(str(_Product_Brands[1]))
         _Product_Brands = self.cur.fetchone()
-      self.__deattackDB()
       return tmp
     except sql.Error as Err:
       print("* Error: \t", end='')

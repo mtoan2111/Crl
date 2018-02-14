@@ -11,7 +11,6 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 
 from Product import Product
-from AttackDB import AttackDB
 
 from selenium.common.exceptions import TimeoutException
 from requests.exceptions import ConnectionError
@@ -23,14 +22,17 @@ class HTML_Parsing:
     self._TaskProductQueue = Queue()
     self._OutPagingQueue = Queue()
     self._OutProductQueue = Queue()
-    self._PrintLook = threading.Lock()
+    self._PrintLook = Lock()
     self._LstProduct = list()
     self._MainSource = "https://shop.adidas.jp/item/?cateId=1&condition=4%245&gendId=m&limit=40&page="
     self._ProductSource = "https://shop.adidas.jp"
     self._NumOfPaging = 0
     self._MAX_SUB_THREAD = 4
 
-  def getContentMainPage(self):
+  def parsingHTML(self):
+    return self.__parsingHTML()
+
+  def __getContentMainPage(self):
     print ("-> Acquiring Main Page Content: ", end='')
     _SuccessFLG = False
     while not _SuccessFLG:
@@ -91,13 +93,13 @@ class HTML_Parsing:
       with self._PrintLook:
         print ("+ " + threading.currentThread().getName() + "\t-> Now Processing: " + i, end='')
       self._OutProductQueue.put(Product().getProductDetailsFromHTML(i))
+      time.sleep(1)
       with self._PrintLook:
         print ("\t-> Done!")
-      time.sleep(1)
     q.task_done()
 
-  def parsingHTML(self):
-    self._NumOfPaging = self.getContentMainPage() / 16
+  def __parsingHTML(self):
+    self._NumOfPaging = self.__getContentMainPage()
     if __name__ == "__main__":
       print("-> Starting")
     for i in range(self._NumOfPaging):
@@ -118,12 +120,7 @@ class HTML_Parsing:
       worker.start()
     self._TaskProductQueue.join()
     _LstSubProduct = list(self._OutProductQueue.queue)
-    # for i in _LstSubProduct:
-    #   AttackDB().insertRowToDB(i)
-    #   print (i.ProductName, i.ProductId, i.ProductBrand, i.ProductImgs, i.ProductURL, i.ProductGender, i.ProductPrice)
-    #   print (" ")
     return _LstSubProduct
-    # AttackDB().insertRowToDB(_LstSubProduct[2])
 
 if __name__ == "__main__":
   print (HTML_Parsing().parsingHTML()[0].ProductId)

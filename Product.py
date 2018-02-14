@@ -6,7 +6,6 @@ import time
 from copy import deepcopy
 from decimal import Decimal
 from requests.exceptions import ConnectionError
-from datetime import datetime
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -260,7 +259,8 @@ class Product(object):
       for s in self.soup.findAll("li", {"class" : "sold_out"}):
         s.extract()
       self.ProductSizes = [s.findAll("p")[0].text.encode("UTF-8").strip()
-                           for s in self.soup.findAll("li", {"class" : "js-select_size"})]
+                           for s in self.soup.findAll("li", {
+                           "class" : "js-select_size"})]
       if len(self.ProductSizes) == 0:
         self.ProductSoldOut = True
       if __name__ == "__main__":
@@ -317,9 +317,6 @@ class Product(object):
       _equal = True
       return _equal
     if self.ProductPrice == _other.ProductPrice:
-      _equal = True
-      return _equal
-    if self.ProductLink == _other.ProductLink:
       _equal = True
       return _equal
     if self.ProductSizes == _other.ProductSizes:
