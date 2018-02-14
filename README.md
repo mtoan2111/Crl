@@ -1,7 +1,7 @@
-#Adidas Web Crawler
-##Adidas's Homepage At [Here](https://shop.adidas.jp/)
+# Adidas Web Crawler
+## Adidas's Homepage At [Here](https://shop.adidas.jp/)
 
-##Install Required Package:
+## Install Required Package:
 ```
 sudo apt-get install python-dev
 sudo apt-get install python3-dev
