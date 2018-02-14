@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import threading
+import time
 
 from Queue import Queue
 from threading import Thread, Lock
@@ -17,7 +18,6 @@ from requests.exceptions import ConnectionError
 
 class HTML_Parsing:
   def __init__(self):
-    print ("-> Stating To Analyze HTML Page: ", end='')
     self._TaskPagingQueue = Queue()
     self._ProductQueue = Queue()
     self._TaskProductQueue = Queue()
@@ -31,8 +31,7 @@ class HTML_Parsing:
     self._MAX_SUB_THREAD = 4
 
   def getContentMainPage(self):
-    if __name__ == "__main__":
-      print ("-> Acquiring Main Page Content: ", end='')
+    print ("-> Acquiring Main Page Content: ", end='')
     _SuccessFLG = False
     while not _SuccessFLG:
       try:
@@ -42,8 +41,7 @@ class HTML_Parsing:
         _soup = BeautifulSoup(_html, "html.parser")
         _driver.close()
         _num_page = Decimal(_soup.select("a.paging")[-1].text.strip())
-        if __name__ == "__main__":
-          print (str(_num_page) + " pages were acquired")
+        print (str(_num_page) + " pages were acquired")
         _SuccessFLG = True
         return Decimal(_soup.select("a.paging")[-1].text.strip())
       except ConnectionError as Err:
@@ -56,13 +54,13 @@ class HTML_Parsing:
         print ("\t-> Trying to reload ...")
 
   def __createTaskQueue(self):
-    [self._TaskPagingQueue.put(self._MainSource + str(i)) for i in range(1,self._NumOfPaging + 1)]
+    [self._TaskPagingQueue.put(self._MainSource + str(i))
+     for i in range(1,self._NumOfPaging + 1)]
 
   def __getNumProduct(self, i, q):
     _ProductSource = q.get()
-    if __name__ == "__main__":
-      with self._PrintLook:
-        print ("+ " + threading.currentThread().getName() + " -> Processing: " + _ProductSource)
+    with self._PrintLook:
+      print ("+ " + threading.currentThread().getName() + " -> Processing: " + _ProductSource)
     _driver = webdriver.Chrome()
     _driver.get(_ProductSource)
     _html = _driver.page_source
@@ -72,36 +70,34 @@ class HTML_Parsing:
                                      for item in _soup.findAll("a",{
                                      "data-ga-event-category": "eec_productlist"})]
     q.task_done()
-    if __name__ == "__main__":
-      with self._PrintLook:
-        print (". " + threading.currentThread().getName() + " -> Done!")
+    time.sleep(1)
+    with self._PrintLook:
+      print (". " + threading.currentThread().getName() + " -> Done!")
 
   def __createProductLink(self, link):
-      [self._ProductQueue.put(self._ProductSource + link[i]) for i in range(5)]
+      [self._ProductQueue.put(self._ProductSource + link[i])
+       for i in range(5)]
 
   def __createTaskProductQueue(self):
-    if __name__ == "__main__":
-      print ("-> Create Product Queue: ", end='')
+    print ("-> Create Product Queue: ", end='')
     step = len(self._LstProduct)/self._MAX_SUB_THREAD
     [self._TaskProductQueue.put([self._LstProduct[m] for m in range(n - step, n, 1)])
                                 for n in range(step, len(self._LstProduct), step)]
-    if __name__ == "__main__":
-      print (str(self._TaskProductQueue.qsize()) + " elements in queue were created")
+    print (str(self._TaskProductQueue.qsize()) + " elements in queue were created")
 
   def __getProductDetails(self, q):
     LstSubProduct = q.get()
     for i in LstSubProduct:
-      if __name__ == "__main__":
-        with self._PrintLook:
-          print ("+ " + threading.currentThread().getName() + "\t-> Now Processing: " + i, end='')
+      with self._PrintLook:
+        print ("+ " + threading.currentThread().getName() + "\t-> Now Processing: " + i, end='')
       self._OutProductQueue.put(Product().getProductDetailsFromHTML(i))
-      if __name__ == "__main__":
-        with self._PrintLook:
-          print ("\t-> Done!")
+      with self._PrintLook:
+        print ("\t-> Done!")
+      time.sleep(1)
     q.task_done()
 
   def parsingHTML(self):
-    self._NumOfPaging = self.getContentMainPage() / 8
+    self._NumOfPaging = self.getContentMainPage() / 16
     if __name__ == "__main__":
       print("-> Starting")
     for i in range(self._NumOfPaging):
@@ -114,8 +110,7 @@ class HTML_Parsing:
     self.__createProductLink(self._LstProduct)
     with self._OutPagingQueue.mutex:
       self._OutPagingQueue.queue.clear()
-    if __name__ == "__main__":
-      print ("-> Done: " + str(len(self._LstProduct)) + " products were acquired")
+    print ("-> Done: " + str(len(self._LstProduct)) + " products were acquired")
     self.__createTaskProductQueue()
     for i in range(self._TaskProductQueue.qsize()):
       worker = Thread(target=self.__getProductDetails, args=(self._TaskProductQueue,))
@@ -127,7 +122,6 @@ class HTML_Parsing:
     #   AttackDB().insertRowToDB(i)
     #   print (i.ProductName, i.ProductId, i.ProductBrand, i.ProductImgs, i.ProductURL, i.ProductGender, i.ProductPrice)
     #   print (" ")
-    print ("-> Done!")
     return _LstSubProduct
     # AttackDB().insertRowToDB(_LstSubProduct[2])
 
